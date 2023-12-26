@@ -1,21 +1,19 @@
 import { Link, Outlet } from 'umi';
-import styles from './index.less';
+import { Layout, Typography } from 'antd';
+import styles from './index.less'
 
-export default function Layout() {
+const { Title } = Typography;
+const { Header, Content } = Layout;
+
+export default () => {
   return (
-    <div className={styles.navs}>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/docs">Docs</Link>
-        </li>
-        <li>
-          <a href="https://github.com/umijs/umi">Github</a>
-        </li>
-      </ul>
-      <Outlet />
-    </div>
+    <Layout style={{height: 'calc(100vh)'}}>
+      <Link to="/" className={styles.title}>
+        <Title>企业档案管理系统</Title>
+      </Link>
+      <Content>
+        <Outlet />
+      </Content>
+    </Layout>
   );
 }

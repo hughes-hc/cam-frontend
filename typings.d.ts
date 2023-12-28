@@ -1,5 +1,5 @@
 import 'umi/typings';
 declare module '*.svg' {
-  const content: string;
+  const content: ReactComponent;
   export default content;
 }

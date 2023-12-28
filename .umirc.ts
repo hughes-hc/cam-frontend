@@ -1,6 +1,11 @@
 import { defineConfig } from "umi";
 
 export default defineConfig({
+  svgr: {},
+  svgo: {},
+  icons: {
+    include: ['local:import', 'local:audit', 'local:search']
+  },
   routes: [
     { path: "/", component: "index" },
     { path: "/import", component: "import" },

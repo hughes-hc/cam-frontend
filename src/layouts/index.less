@@ -1,5 +1,30 @@
+.root {
+  height: calc(100vh - 16px);
+  width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
 .title {
   width: 100%;
   display: flex;
   justify-content: center;
+  background-color: #fff;
+  box-shadow: 0.2s,border-color 0.2s;
+  border-radius: 8px;
+  position: relative;
+  margin-bottom: 30px;
+
+  &::after {
+    content: "Enterprise archive management system";
+    position: absolute;
+    bottom: 0;
+    color: #ccc;
+    font-size: 18px;
+    clear: both;
+  }
+}
+
+.content {
+  padding: 20px;
 }

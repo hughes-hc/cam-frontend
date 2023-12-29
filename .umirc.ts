@@ -8,9 +8,17 @@ export default defineConfig({
   },
   routes: [
     { path: "/", component: "index" },
+    { path: "/login", component: "login" },
     { path: "/import", component: "import" },
     { path: "/search", component: "search" },
     { path: "/audit", component: "audit" },
   ],
-  npmClient: 'pnpm'
+  npmClient: 'pnpm',
+  proxy: {
+    '/api': {
+      'target': 'http://127.0.0.1:3000',
+      'changeOrigin': true,
+      // 'pathRewrite': { '^/api' : '' },
+    },
+  },
 });

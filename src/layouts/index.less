@@ -5,23 +5,29 @@
   padding: 20px;
 }
 
-.title {
+.header {
   width: 100%;
+  height: max-content;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   background-color: #fff;
   box-shadow: 0.2s,border-color 0.2s;
   border-radius: 8px;
   position: relative;
   margin-bottom: 30px;
 
-  &::after {
+  .logo::after {
     content: "Enterprise archive management system";
     position: absolute;
     bottom: 0;
+    left: 50px;
     color: #ccc;
     font-size: 18px;
     clear: both;
+  }
+
+  .logout {
+    
   }
 }
 

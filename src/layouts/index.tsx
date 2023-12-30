@@ -15,7 +15,7 @@ export default () => {
     <Layout className={styles.root}>
       {pathname !== '/login' && <Header className={styles.header}>
         <Link to="/">
-          <Title className={styles.logo}>企业档案管理系统</Title>
+          <Title className={styles.logo}>企业档案管理系统</Title>ihbn k
         </Link>
         <LogoutOutlined className={styles.logout} size={25} onClick={handleLogout}/>
       </Header>}

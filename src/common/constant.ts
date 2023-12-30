@@ -1,0 +1,1 @@
+export const CAM_TOKEN_KEY = 'CAM_TOKEN_KEY';

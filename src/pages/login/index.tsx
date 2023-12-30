@@ -1,56 +1,83 @@
-import { login } from '@/services/login';
-import { Button, Form, Input, message } from 'antd';
+import { getCaptcha, login } from '@/services/login';
+import { Button, Col, Form, Input, Row, notification } from 'antd';
 import { history } from 'umi';
+import { useRequest } from 'ahooks'
+import { CAM_TOKEN_KEY } from '@/common/constant';
 
-const onFinish = (values: any) => {
-  login(values).then(res => {
-    if(res.userId) {
-      history.push('/')
+type FieldType = ILoginParam
+
+const getCaptchaUrl = (svgStr: string) => {
+  const blob = new Blob([svgStr], {type: 'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+  return url
+}
+
+export default () => {
+  const { data, run: handleRefreshCaptcha } = useRequest(getCaptcha)
+  const { captcha_id, captcha_data } = data || {} as ICaptcha
+
+  const { loading, run: handleFinish } = useRequest(
+    (params) => login({ captcha_id, ...params }),
+    {
+      manual: true,
+      onSuccess(res) {
+        localStorage.setItem(CAM_TOKEN_KEY, res)
+        history.push('/')
+      },
+      onError(e) {
+        console.log(e)
+        notification.error({message: e.message})
+        handleRefreshCaptcha()
+      },
     }
-  }).catch(err => {
-    message.error('登录失败')
-  })
-};
+  )
 
-const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
-};
-
-type FieldType = {
-  username?: string;
-  password?: string;
-};
-
-export default () => (
-  <Form
-    labelCol={{ span: 8 }}
-    wrapperCol={{ span: 16 }}
-    style={{ maxWidth: 600 }}
-    initialValues={{ remember: true }}
-    onFinish={onFinish}
-    onFinishFailed={onFinishFailed}
-    autoComplete="off"
-  >
-    <Form.Item<FieldType>
-      label="用户名"
-      name="username"
-      rules={[{ required: true, message: '请输入用户名' }]}
+  return (
+    <Form
+      labelCol={{ span: 8 }}
+      wrapperCol={{ span: 16 }}
+      style={{ maxWidth: 450 }}
+      initialValues={{ remember: true }}
+      onFinish={handleFinish}
+      autoComplete="off"
     >
-      <Input />
-    </Form.Item>
+      <Form.Item<FieldType>
+        label="用户名"
+        name="username"
+        rules={[{ required: true, message: '请输入用户名' }]}
+      >
+        <Input />
+      </Form.Item>
+  
+      <Form.Item<FieldType>
+        label="密码"
+        name="password"
+        rules={[{ required: true, message: '请输入密码' }]}
+      >
+        <Input.Password />
+      </Form.Item>
 
-    <Form.Item<FieldType>
-      label="Password"
-      name="password"
-      rules={[{ required: true, message: '请输入密码' }]}
-    >
-      <Input.Password />
-    </Form.Item>
-
-    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-      <Button type="primary" htmlType="submit">
-        登录
-      </Button>
-    </Form.Item>
-  </Form>
-);
+      <Form.Item label="验证码" style={{ marginBottom: 0 }}>
+        <Row gutter={8}>
+          <Col span={16}>
+          <Form.Item<FieldType>
+            name="captcha_code"
+            rules={[{ required: true, message: '请输入验证码' }]}
+          >
+            <Input />
+          </Form.Item>
+          </Col>
+          <Col span={8}>
+            <img src={getCaptchaUrl(captcha_data)} alt="验证码" onClick={handleRefreshCaptcha} height={32} style={{cursor: 'pointer'}} />
+          </Col>
+        </Row>
+      </Form.Item>
+  
+      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+        <Button type="primary" htmlType="submit" loading={loading}>
+          登录
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+}

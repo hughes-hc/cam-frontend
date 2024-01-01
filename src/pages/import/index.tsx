@@ -1,37 +1,96 @@
-import { InboxOutlined } from '@ant-design/icons';
-import type { UploadProps } from 'antd';
-import { message, Upload } from 'antd';
+import { InboxOutlined } from '@ant-design/icons'
+import type { UploadFile, UploadProps } from 'antd'
+import { Alert, Button, Flex, Upload, message } from 'antd'
+import { useState } from 'react'
+import styles from './index.less'
+import { useRequest } from 'ahooks'
+import { upload } from '@/services/import'
+import { RcFile } from 'antd/es/upload'
 
-const { Dragger } = Upload;
+const { Dragger } = Upload
 
-const props: UploadProps = {
-  name: 'file',
-  multiple: true,
-  action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== 'uploading') {
-      console.log(info.file, info.fileList);
+export default () => {
+  const [fileList, setFileList] = useState<UploadFile[]>([])
+
+  const { loading, run: runUpload } = useRequest(
+    () => {
+      const formData = new FormData()
+      fileList.forEach(file => {
+        formData.append('files[]', file.originFileObj as RcFile)
+      })
+      return upload(formData)
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        message.success('导入成功')
+      }
     }
-    if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log('Dropped files', e.dataTransfer.files);
-  },
-};
+  )
 
-export default () => (
-  <Dragger {...props}>
-    <p className="ant-upload-drag-icon">
-      <InboxOutlined />
-    </p>
-    <p className="ant-upload-text">点击上传</p>
-    <p className="ant-upload-hint">
-    支持单次或批量上传。严禁上传公司数据或其他被禁止的文件。
-    </p>
-  </Dragger>
-);
+  const handleSubmit = () => {
+    if (fileList.length === 0) {
+      return message.warning('请先选择上传文件')
+    }
+
+    runUpload()
+  }
+
+  const uploadProps: UploadProps<UploadFile> = {
+    name: 'file',
+    multiple: true,
+    maxCount: 5,
+    accept: '.pdf',
+    fileList,
+    beforeUpload() {
+      // 返回false在点击上传按钮时再传递文件
+      return false
+    },
+    onChange(info) {
+      const { fileList } = info
+      console.log(fileList)
+
+      const files = fileList.filter(file => {
+        if (Number(file.size) > 50 * 1024 * 1024) {
+          message.warning('文件大小不能超过50MB')
+          return false
+        }
+        return true
+      })
+      setFileList(files)
+    }
+  }
+
+  return (
+    <div className={styles.importWrapper}>
+      <Flex vertical gap={40} style={{ width: 600 }}>
+        <Alert
+          message="上传须知"
+          description={
+            <>
+              <div>1. 文件格式: 仅支持PDF格式文件上传；</div>
+              <div>2. 文件命名: 请规范文件上传命名规范，示例：公司名称-文件名称；</div>
+              <div>3. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不超过50MB；</div>
+            </>
+          }
+          type="info"
+          showIcon
+        />
+        <Dragger {...uploadProps} className={styles.upload}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">点击上传</p>
+        </Dragger>
+        <Button
+          type="primary"
+          loading={loading}
+          onClick={handleSubmit}
+          className={styles.submitBtn}
+        >
+          导入档案
+        </Button>
+      </Flex>
+    </div>
+  )
+}

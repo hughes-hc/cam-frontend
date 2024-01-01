@@ -1,36 +1,33 @@
-import { getCaptcha, login } from '@/services/login';
-import { Button, Col, Form, Input, Row, notification } from 'antd';
-import { history } from 'umi';
+import { getCaptcha, login } from '@/services/login'
+import { Button, Col, Form, Input, Row, notification } from 'antd'
+import { history } from 'umi'
 import { useRequest } from 'ahooks'
-import { CAM_TOKEN_KEY } from '@/common/constant';
+import { CAM_TOKEN_KEY } from '@/common/constant'
 
 type FieldType = ILoginParam
 
 const getCaptchaUrl = (svgStr: string) => {
-  const blob = new Blob([svgStr], {type: 'image/svg+xml'});
-  const url = URL.createObjectURL(blob);
+  const blob = new Blob([svgStr], { type: 'image/svg+xml' })
+  const url = URL.createObjectURL(blob)
   return url
 }
 
 export default () => {
   const { data, run: handleRefreshCaptcha } = useRequest(getCaptcha)
-  const { captcha_id, captcha_data } = data || {} as ICaptcha
+  const { captcha_id, captcha_data } = data || ({} as ICaptcha)
 
-  const { loading, run: handleFinish } = useRequest(
-    (params) => login({ captcha_id, ...params }),
-    {
-      manual: true,
-      onSuccess(res) {
-        localStorage.setItem(CAM_TOKEN_KEY, res)
-        history.push('/')
-      },
-      onError(e) {
-        console.log(e)
-        notification.error({message: e.message})
-        handleRefreshCaptcha()
-      },
+  const { loading, run: handleFinish } = useRequest(params => login({ captcha_id, ...params }), {
+    manual: true,
+    onSuccess(res) {
+      localStorage.setItem(CAM_TOKEN_KEY, `Bearer ${res.access_token}`)
+      history.push('/')
+    },
+    onError(e) {
+      console.log(e)
+      notification.error({ message: e.message })
+      handleRefreshCaptcha()
     }
-  )
+  })
 
   return (
     <Form
@@ -48,7 +45,7 @@ export default () => {
       >
         <Input />
       </Form.Item>
-  
+
       <Form.Item<FieldType>
         label="密码"
         name="password"
@@ -60,24 +57,30 @@ export default () => {
       <Form.Item label="验证码" style={{ marginBottom: 0 }}>
         <Row gutter={8}>
           <Col span={16}>
-          <Form.Item<FieldType>
-            name="captcha_code"
-            rules={[{ required: true, message: '请输入验证码' }]}
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item<FieldType>
+              name="captcha_code"
+              rules={[{ required: true, message: '请输入验证码' }]}
+            >
+              <Input />
+            </Form.Item>
           </Col>
           <Col span={8}>
-            <img src={getCaptchaUrl(captcha_data)} alt="验证码" onClick={handleRefreshCaptcha} height={32} style={{cursor: 'pointer'}} />
+            <img
+              src={getCaptchaUrl(captcha_data)}
+              alt="验证码"
+              onClick={handleRefreshCaptcha}
+              height={32}
+              style={{ cursor: 'pointer' }}
+            />
           </Col>
         </Row>
       </Form.Item>
-  
+
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit" loading={loading}>
           登录
         </Button>
       </Form.Item>
     </Form>
-  );
+  )
 }

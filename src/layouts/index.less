@@ -1,36 +1,37 @@
 .root {
-  height: calc(100vh - 16px);
   width: 1000px;
-  margin: auto;
+  height: calc(100vh - 16px);
   padding: 20px;
+  margin: auto;
 }
 
 .header {
-  width: 100%;
-  height: max-content;
+  position: relative;
   display: flex;
   justify-content: space-between;
-  background-color: #fff;
-  box-shadow: 0.2s,border-color 0.2s;
-  border-radius: 8px;
-  position: relative;
+  width: 100%;
+  height: max-content;
   margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow:
+    0.2s,
+    border-color 0.2s;
 
   .logo::after {
-    content: "Enterprise archive management system";
     position: absolute;
     bottom: 0;
     left: 50px;
-    color: #ccc;
-    font-size: 18px;
     clear: both;
+    font-size: 18px;
+    color: #ccc;
+    content: "Enterprise archive management system";
   }
 
   .logout {
-    
   }
 }
 
 .content {
-  padding: 20px;
+  // padding: 20px;padding
 }

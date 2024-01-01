@@ -1,0 +1,4 @@
+{
+  "extends": ["stylelint-config", "stylelint-prettier/recommended"],
+  "plugins": ["stylelint-order", "stylelint-declaration-block-no-ignored-properties"]
+}

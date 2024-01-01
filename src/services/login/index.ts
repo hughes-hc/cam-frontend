@@ -1,11 +1,10 @@
 /// <reference path="index.d.ts" />
-import request  from "../request";
+import request from '../request'
 
 export const getCaptcha = () => {
-  return request.get<undefined,ICaptcha>('/api/v1/auth/captcha')
+  return request.get<undefined, ICaptcha>('/api/v1/auth/captcha')
 }
 
 export const login = (params: ILoginParam) => {
-  return request.post<ILoginParam, string>('/api/v1/auth/login', params)
+  return request.post<ILoginParam, IUerInfo>('/api/v1/auth/login', params)
 }
-

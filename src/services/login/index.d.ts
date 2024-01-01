@@ -1,6 +1,6 @@
 interface ICaptcha {
-  captcha_id: string;
-  captcha_data: string;
+  captcha_id: string
+  captcha_data: string
 }
 
 interface ILoginParam {
@@ -8,4 +8,8 @@ interface ILoginParam {
   password: string
   captcha_id?: ICaptcha['captcha_id']
   captcha_code: string
+}
+
+interface IUerInfo {
+  access_token: string
 }

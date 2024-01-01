@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  // 使用 stylelint 自身的校验即可
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "cSpell.words": ["baoland", "baolandweb", "Cascader", "iast", "Popconfirm"]
+}

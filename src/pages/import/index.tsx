@@ -16,7 +16,7 @@ export default () => {
     () => {
       const formData = new FormData()
       fileList.forEach(file => {
-        formData.append('files[]', file.originFileObj as RcFile)
+        formData.append('files', file.originFileObj as RcFile)
       })
       return upload(formData)
     },

@@ -1,6 +1,13 @@
-import 'umi/typings';
+import 'umi/typings'
 declare module '*.svg' {
-  const content: ReactComponent;
-  export default content;
+  const content: ReactComponent
+  export default content
 }
 
+declare global {
+  interface ITable<T> {
+    items: T[]
+    current: number
+    total: number
+  }
+}

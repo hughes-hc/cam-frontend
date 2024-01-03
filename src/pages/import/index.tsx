@@ -24,6 +24,7 @@ export default () => {
       manual: true,
       onSuccess: () => {
         message.success('导入成功')
+        setFileList([])
       }
     }
   )

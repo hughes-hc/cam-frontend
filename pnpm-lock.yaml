@@ -17,6 +17,9 @@ dependencies:
   axios:
     specifier: ^1.6.3
     version: 1.6.3
+  js-file-download:
+    specifier: ^0.4.12
+    version: 0.4.12
   qs:
     specifier: ^6.11.2
     version: 6.11.2
@@ -48,7 +51,7 @@ devDependencies:
     version: 8.56.0
   eslint-config:
     specifier: https://github.com/hughes-hc/eslint-config.git
-    version: git/github.com+hughes-hc/eslint-config/5e810527ed76d99726f00bb1cc0928dff54bcbc2
+    version: git@github.com+hughes-hc/eslint-config/5e810527ed76d99726f00bb1cc0928dff54bcbc2
   eslint-config-prettier:
     specifier: ^9.1.0
     version: 9.1.0(eslint@8.56.0)
@@ -5901,6 +5904,10 @@ packages:
     resolution: {integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==}
     dev: false
 
+  /js-file-download@0.4.12:
+    resolution: {integrity: sha512-rML+NkoD08p5Dllpjo0ffy4jRHeY6Zsapvr/W86N7E0yuzAO6qa5X9+xog6zQNlH102J7IXljNY2FtS6Lj3ucg==}
+    dev: false
+
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -10315,7 +10322,7 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  git/github.com+hughes-hc/eslint-config/5e810527ed76d99726f00bb1cc0928dff54bcbc2:
+  git@github.com+hughes-hc/eslint-config/5e810527ed76d99726f00bb1cc0928dff54bcbc2:
     resolution: {commit: 5e810527ed76d99726f00bb1cc0928dff54bcbc2, repo: git@github.com:hughes-hc/eslint-config.git, type: git}
     name: eslint-config
     version: 1.6.3

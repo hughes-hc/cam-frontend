@@ -13,5 +13,6 @@ interface IFileItem {
 
 interface IDownloadParams {
   id: number
+  filename: string
   is_seal?: boolean
 }

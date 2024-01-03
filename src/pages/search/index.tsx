@@ -22,7 +22,7 @@ export default () => {
 
   const { run: handleDownload } = useRequest(downloadFile, {
     manual: true,
-    onSuccess: () => {
+    onSuccess: res => {
       message.success('下载成功')
     }
   })
@@ -45,12 +45,12 @@ export default () => {
     },
     {
       title: '操作',
-      render: (_: any, { id }: IFileItem) => (
+      render: (_: any, { id, filename }: IFileItem) => (
         <Space size="middle">
-          <Button type="link" loading={loading} onClick={() => handleDownload({ id })}>
+          <Button type="link" loading={loading} onClick={() => handleDownload({ id, filename })}>
             下载原始文件
           </Button>
-          <Button type="link" onClick={() => handleDownload({ id, is_seal: true })}>
+          <Button type="link" onClick={() => handleDownload({ id, filename, is_seal: true })}>
             下载盖章文件
           </Button>
         </Space>
@@ -66,6 +66,7 @@ export default () => {
         style={{ width: '100%', marginBottom: 20 }}
       />
       <Table
+        rowKey="id"
         columns={columns}
         dataSource={items}
         pagination={{

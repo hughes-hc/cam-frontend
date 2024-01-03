@@ -6,5 +6,7 @@ export const getFileList = (params: IQuery) => {
 }
 
 export const downloadFile = (params: IDownloadParams) => {
-  return request.post<IDownloadParams, File>('/api/v1/file/download', params)
+  return request.post<IDownloadParams, File>('/api/v1/file/download', params, {
+    responseType: 'blob'
+  })
 }

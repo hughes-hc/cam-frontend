@@ -13,10 +13,10 @@ const initialQuery = {
 
 export default () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
-  const { page, page_size, pattern } = query
+  const { page, page_size, pattern, order } = query
 
   const { data, loading } = useRequest(() => getFileList(query), {
-    refreshDeps: [page, page_size, pattern]
+    refreshDeps: [page, page_size, pattern, order]
   })
   const { total = 0, items = [] } = data || {}
 
@@ -27,8 +27,12 @@ export default () => {
     }
   })
 
-  const handleTableChange: TableProps<IFileItem>['onChange'] = ({ current, pageSize }) => {
-    setQuery({ page: current ?? page, page_size: pageSize ?? page_size })
+  const handleTableChange: TableProps<IFileItem>['onChange'] = (
+    { current, pageSize },
+    _,
+    { order }
+  ) => {
+    setQuery({ page: current ?? page, page_size: pageSize ?? page_size, order })
   }
 
   const columns: ColumnsType<IFileItem> = [
@@ -36,7 +40,7 @@ export default () => {
       title: '企业档案名称',
       dataIndex: 'filename',
       sorter: true,
-      width: '20%'
+      width: '50%'
     },
     {
       title: '企业注册号',

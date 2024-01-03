@@ -1,134 +1,81 @@
-import { Input,Space } from 'antd';
-import { useEffect, useState } from 'react';
-import { Table } from 'antd';
-import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import type { FilterValue, SorterResult } from 'antd/es/table/interface';
-import qs from 'qs';
+import { downloadFile, getFileList } from '@/services/search'
+import { useRequest, useSetState } from 'ahooks'
+import { Button, Input, Space, Table, message } from 'antd'
+import type { ColumnsType, TableProps } from 'antd/es/table'
 
-interface DataType {
-  name: {
-    first: string;
-    last: string;
-  };
-  gender: string;
-  email: string;
-  login: {
-    uuid: string;
-  };
+const { Search } = Input
+
+const initialQuery = {
+  page: 1,
+  page_size: 10,
+  pattern: ''
 }
-
-interface TableParams {
-  pagination?: TablePaginationConfig;
-  sortField?: string;
-  sortOrder?: string;
-  filters?: Record<string, FilterValue>;
-}
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: '企业档案名称',
-    dataIndex: 'name',
-    sorter: true,
-    render: (name) => `${name.first} ${name.last}`,
-    width: '20%',
-  },
-  {
-    title: '企业注册号',
-    dataIndex: 'gender',
-    filters: [
-      { text: 'Male', value: 'male' },
-      { text: 'Female', value: 'female' },
-    ],
-    width: '20%',
-  },
-  {
-    title: '档案文件名',
-    dataIndex: 'email',
-  },
-  {
-    title: '操作',
-    render: (_: any, record: DataType) => (
-      <Space size="middle">
-        <a>下载</a>
-        <a>盖章</a>
-      </Space>
-    )
-  }
-];
-
-const getRandomuserParams = (params: TableParams) => ({
-  results: params.pagination?.pageSize,
-  page: params.pagination?.current,
-  ...params,
-});
-
-const {Search} = Input;
 
 export default () => {
-  const onSearch = (value: string) => {
-    console.log(value)
+  const [query, setQuery] = useSetState<IQuery>(initialQuery)
+  const { page, page_size, pattern, order } = query
+
+  const { data, loading } = useRequest(() => getFileList(query), {
+    refreshDeps: [page, page_size, pattern, order]
+  })
+  const { total = 0, items = [] } = data || {}
+
+  const handleTableChange: TableProps<IFileItem>['onChange'] = (
+    { current, pageSize },
+    _,
+    { order }
+  ) => {
+    setQuery({ page: current ?? page, page_size: pageSize ?? page_size, order })
   }
 
-  const [data, setData] = useState<DataType[]>();
-  const [loading, setLoading] = useState(false);
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: {
-      current: 1,
-      pageSize: 10,
+  const columns: ColumnsType<IFileItem> = [
+    {
+      title: '企业档案名称',
+      dataIndex: 'filename',
+      sorter: true,
+      width: '30%'
     },
-  });
-
-  const fetchData = () => {
-    setLoading(true);
-    fetch(`https://randomuser.me/api?${qs.stringify(getRandomuserParams(tableParams))}`)
-      .then((res) => res.json())
-      .then(({ results }) => {
-        setData(results);
-        setLoading(false);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: 200,
-            // 200 is mock data, you should read it from server
-            // total: data.totalCount,
-          },
-        });
-      });
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [JSON.stringify(tableParams)]);
-
-  const handleTableChange = (
-    pagination: TablePaginationConfig,
-    filters: Record<string, FilterValue>,
-    sorter: SorterResult<DataType>,
-  ) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    // `dataSource` is useless since `pageSize` changed
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
+    {
+      title: '企业注册号',
+      dataIndex: 'company_reg_num',
+      width: '20%'
+    },
+    {
+      title: '操作人',
+      dataIndex: 'username',
+      width: '10%'
+    },
+    {
+      title: '操作类型',
+      dataIndex: 'handle_type',
+      width: '20%'
+    },
+    {
+      title: '操作时间',
+      dataIndex: 'handle_time',
+      width: '20%'
     }
-  };
-  
+  ]
+
   return (
     <div>
-      <Search placeholder="请输入" onSearch={onSearch} style={{ width: '100%', marginBottom: 20 }} />
+      <Search
+        placeholder="请输入"
+        onSearch={val => setQuery({ pattern: val })}
+        style={{ width: '100%', marginBottom: 20 }}
+      />
       <Table
+        rowKey="id"
         columns={columns}
-        rowKey={(record) => record.login.uuid}
-        dataSource={data}
-        pagination={tableParams.pagination}
+        dataSource={items}
+        pagination={{
+          current: page,
+          pageSize: page_size,
+          total
+        }}
         loading={loading}
         onChange={handleTableChange}
       />
     </div>
-  );
+  )
 }

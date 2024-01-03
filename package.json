@@ -1,6 +1,6 @@
 {
   "private": true,
-  "author": "hucheng <hucheng@moresec.cn>",
+  "author": "hughes <w3c_cheng@aliyun.com>",
   "scripts": {
     "dev": "umi dev",
     "build": "umi build",

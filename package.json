@@ -6,7 +6,8 @@
     "build": "umi build",
     "postinstall": "umi setup",
     "setup": "umi setup",
-    "start": "npm run dev"
+    "start": "npm run dev",
+    "upload": "scp -r dist/* root@60.204.224.29:/home/frontend/dist/"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",

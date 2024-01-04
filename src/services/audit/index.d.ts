@@ -5,8 +5,10 @@ interface IFileItem {
   upload_time: number
 }
 
-interface IDownloadParams {
+interface IAuditItem {
   id: number
   filename: string
-  is_seal?: boolean
+  username: string
+  handle_type: string
+  handle_time: number
 }

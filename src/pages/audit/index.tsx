@@ -1,6 +1,6 @@
-import { downloadFile, getFileList } from '@/services/search'
+import { getAuditList } from '@/services/audit'
 import { useRequest, useSetState } from 'ahooks'
-import { Button, Input, Space, Table, message } from 'antd'
+import { Input, Table } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
 
 const { Search } = Input
@@ -15,7 +15,7 @@ export default () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
   const { page, page_size, pattern, order } = query
 
-  const { data, loading } = useRequest(() => getFileList(query), {
+  const { data, loading } = useRequest(() => getAuditList(query), {
     refreshDeps: [page, page_size, pattern, order]
   })
   const { total = 0, items = [] } = data || {}

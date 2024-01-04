@@ -10,4 +10,11 @@ declare global {
     current: number
     total: number
   }
+
+  interface IQuery {
+    page: number
+    page_size: number
+    pattern: string
+    order?: SortOrder
+  }
 }

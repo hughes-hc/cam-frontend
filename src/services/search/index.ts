@@ -10,3 +10,9 @@ export const downloadFile = (params: IDownloadParams) => {
     responseType: 'blob'
   })
 }
+
+export const downloadSealFile = (params: IDownloadParams) => {
+  return request.post<IDownloadParams, File>('/api/v1/file/download/seal', params, {
+    responseType: 'blob'
+  })
+}

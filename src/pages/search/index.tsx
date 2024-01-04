@@ -1,4 +1,4 @@
-import { downloadFile, getFileList } from '@/services/search'
+import { downloadFile, downloadSealFile, getFileList } from '@/services/search'
 import { useRequest, useSetState } from 'ahooks'
 import { Button, Input, Space, Table, message } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
@@ -22,7 +22,14 @@ export default () => {
 
   const { run: handleDownload } = useRequest(downloadFile, {
     manual: true,
-    onSuccess: res => {
+    onSuccess: () => {
+      message.success('下载成功')
+    }
+  })
+
+  const { run: handleDownloadSeal } = useRequest(downloadSealFile, {
+    manual: true,
+    onSuccess: () => {
       message.success('下载成功')
     }
   })
@@ -54,7 +61,7 @@ export default () => {
           <Button type="link" loading={loading} onClick={() => handleDownload({ id, filename })}>
             下载原始文件
           </Button>
-          <Button type="link" onClick={() => handleDownload({ id, filename, is_seal: true })}>
+          <Button type="link" onClick={() => handleDownloadSeal({ id, filename })}>
             下载盖章文件
           </Button>
         </Space>

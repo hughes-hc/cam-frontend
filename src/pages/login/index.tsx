@@ -24,7 +24,6 @@ export default () => {
     },
     onError(e) {
       console.log(e)
-      notification.error({ message: e.message })
       handleRefreshCaptcha()
     }
   })

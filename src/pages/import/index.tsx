@@ -11,6 +11,7 @@ const { Dragger } = Upload
 
 export default () => {
   const [fileList, setFileList] = useState<UploadFile[]>([])
+  const [percent, setPercent] = useState(0)
 
   const { loading, run: runUpload } = useRequest(
     () => {
@@ -18,7 +19,7 @@ export default () => {
       fileList.forEach(file => {
         formData.append('files', file.originFileObj as RcFile)
       })
-      return upload(formData)
+      return upload(formData, setPercent)
     },
     {
       manual: true,
@@ -34,6 +35,7 @@ export default () => {
       return message.warning('请先选择上传文件')
     }
 
+    message.info('开始导入文件...')
     runUpload()
   }
 
@@ -77,7 +79,7 @@ export default () => {
           type="info"
           showIcon
         />
-        <Dragger {...uploadProps} className={styles.upload}>
+        <Dragger {...uploadProps} className={styles.upload} disabled={loading}>
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
@@ -89,7 +91,7 @@ export default () => {
           onClick={handleSubmit}
           className={styles.submitBtn}
         >
-          导入档案
+          {loading ? `导入中 ${percent}%` : '导入档案'}
         </Button>
       </Flex>
     </div>

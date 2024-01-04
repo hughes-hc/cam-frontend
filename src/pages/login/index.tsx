@@ -1,8 +1,10 @@
 import { getCaptcha, login } from '@/services/login'
-import { Button, Col, Form, Input, Row, notification } from 'antd'
+import { Button, Col, Form, Input, Row } from 'antd'
 import { history } from 'umi'
 import { useRequest } from 'ahooks'
 import { CAM_TOKEN_KEY } from '@/common/constant'
+import styles from './index.less'
+import bgImg from '@/assets/images/login_bg.png'
 
 type FieldType = ILoginParam
 
@@ -29,57 +31,61 @@ export default () => {
   })
 
   return (
-    <Form
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 450 }}
-      initialValues={{ remember: true }}
-      onFinish={handleFinish}
-      autoComplete="off"
-    >
-      <Form.Item<FieldType>
-        label="用户名"
-        name="username"
-        rules={[{ required: true, message: '请输入用户名' }]}
+    <div className={styles.login}>
+      <Form
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 450 }}
+        initialValues={{ remember: true }}
+        onFinish={handleFinish}
+        autoComplete="off"
+        className={styles.form}
       >
-        <Input />
-      </Form.Item>
+        <h1 className={styles.title}>企业档案管理系统</h1>
+        <Form.Item<FieldType>
+          label="用户名"
+          name="username"
+          rules={[{ required: true, message: '请输入用户名' }]}
+        >
+          <Input />
+        </Form.Item>
 
-      <Form.Item<FieldType>
-        label="密码"
-        name="password"
-        rules={[{ required: true, message: '请输入密码' }]}
-      >
-        <Input.Password />
-      </Form.Item>
+        <Form.Item<FieldType>
+          label="密码"
+          name="password"
+          rules={[{ required: true, message: '请输入密码' }]}
+        >
+          <Input.Password />
+        </Form.Item>
 
-      <Form.Item label="验证码" style={{ marginBottom: 0 }}>
-        <Row gutter={8}>
-          <Col span={16}>
-            <Form.Item<FieldType>
-              name="captcha_code"
-              rules={[{ required: true, message: '请输入验证码' }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <img
-              src={getCaptchaUrl(captcha_data)}
-              alt="验证码"
-              onClick={handleRefreshCaptcha}
-              height={32}
-              style={{ cursor: 'pointer' }}
-            />
-          </Col>
-        </Row>
-      </Form.Item>
+        <Form.Item label="验证码" style={{ marginBottom: 0 }}>
+          <Row gutter={8}>
+            <Col span={16}>
+              <Form.Item<FieldType>
+                name="captcha_code"
+                rules={[{ required: true, message: '请输入验证码' }]}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <img
+                src={getCaptchaUrl(captcha_data)}
+                alt="验证码"
+                onClick={handleRefreshCaptcha}
+                height={32}
+                style={{ cursor: 'pointer' }}
+              />
+            </Col>
+          </Row>
+        </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          登录
-        </Button>
-      </Form.Item>
-    </Form>
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%' }}>
+            登录
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   )
 }

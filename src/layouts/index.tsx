@@ -1,5 +1,5 @@
-import { Link, Outlet, history, useLocation } from 'umi'
-import { Layout, Typography } from 'antd'
+import { Icon, Link, Outlet, history, useLocation } from 'umi'
+import { Layout, Space, Typography } from 'antd'
 import styles from './index.less'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useEffect } from 'react'
@@ -15,23 +15,29 @@ export default () => {
       history.push('/login')
     }
   }, [])
+
   const handleLogout = () => {
     localStorage.removeItem(CAM_TOKEN_KEY)
     history.push('/login')
   }
-  return (
+
+  return pathname !== '/login' ? (
     <Layout className={styles.root}>
-      {pathname !== '/login' && (
-        <Header className={styles.header}>
-          <Link to="/">
-            <Title className={styles.logo}>企业档案管理系统</Title>
-          </Link>
+      <Header className={styles.header}>
+        <Link to="/" className={styles.logo}>
+          <Icon icon="local:logo" width="50px" height="50px" />
+          <Title>企业档案管理系统</Title>
+        </Link>
+        <Space size="large">
+          admin
           <LogoutOutlined className={styles.logout} size={25} onClick={handleLogout} />
-        </Header>
-      )}
+        </Space>
+      </Header>
       <Content className={styles.content}>
         <Outlet />
       </Content>
     </Layout>
+  ) : (
+    <Outlet />
   )
 }

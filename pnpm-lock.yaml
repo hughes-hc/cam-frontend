@@ -8,6 +8,9 @@ dependencies:
   '@ant-design/icons':
     specifier: ^5.2.6
     version: 5.2.6(react-dom@18.1.0)(react@18.1.0)
+  '@types/lodash':
+    specifier: ^4.14.202
+    version: 4.14.202
   ahooks:
     specifier: ^3.7.8
     version: 3.7.8(react@18.1.0)
@@ -20,6 +23,9 @@ dependencies:
   js-file-download:
     specifier: ^0.4.12
     version: 0.4.12
+  lodash:
+    specifier: ^4.17.21
+    version: 4.17.21
   qs:
     specifier: ^6.11.2
     version: 6.11.2
@@ -1732,6 +1738,10 @@ packages:
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  /@types/lodash@4.14.202:
+    resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
+    dev: false
 
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}

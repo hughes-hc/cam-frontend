@@ -3,9 +3,9 @@ import { Link, Icon } from 'umi'
 
 export default () => {
   const menus = [
-    { title: '档案导入', path: '/import', icon: 'local:import' },
-    { title: '档案查询', path: '/search', icon: 'local:search' },
-    { title: '操作记录查询', path: '/audit', icon: 'local:audit' }
+    { title: '档案导入', path: '/import', icon: 'local:home/import' },
+    { title: '档案查询', path: '/search', icon: 'local:home/search' },
+    { title: '操作记录查询', path: '/audit', icon: 'local:home/audit' }
   ]
 
   return (

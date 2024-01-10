@@ -7,7 +7,7 @@ declare module '*.svg' {
 declare global {
   interface ITable<T> {
     items: T[]
-    current: number
+    current?: number
     total: number
   }
 

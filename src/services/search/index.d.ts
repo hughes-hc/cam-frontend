@@ -3,6 +3,7 @@ interface IFileItem {
   filename: string
   company_reg_num: string
   upload_time: number
+  [string: string]: string | boolean
 }
 
 interface IDownloadParams {

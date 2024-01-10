@@ -15,24 +15,48 @@ export default () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
   const { page, page_size, pattern, order } = query
 
-  const { data, loading } = useRequest(() => getFileList(query), {
+  const {
+    data,
+    loading,
+    mutate: updateProgress
+  } = useRequest(() => getFileList(query), {
     refreshDeps: [page, page_size, pattern, order]
   })
   const { total = 0, items = [] } = data || {}
 
   const { run: handleDownload } = useRequest(downloadFile, {
     manual: true,
-    onSuccess: () => {
-      message.success('下载成功')
+    onSuccess: (_, [params]) => {
+      message.success(`${params.filename} 下载成功`)
     }
   })
 
   const { run: handleDownloadSeal } = useRequest(downloadSealFile, {
     manual: true,
-    onSuccess: () => {
-      message.success('下载成功')
+    onSuccess: (_, [params]) => {
+      message.success(`${params.filename} (盖章文件) 下载成功`)
     }
   })
+
+  const handleUpdateProgress = (
+    { id, is_seal }: IDownloadParams,
+    percent: number,
+    isLoading: boolean
+  ) => {
+    const newItems = items.map(item => {
+      if (item.id === id) {
+        if (is_seal) {
+          item['loadingDownloadSeal'] = isLoading
+          item['downloadSealProgress'] = `${percent}%`
+        } else {
+          item['loadingDownload'] = isLoading
+          item['downloadProgress'] = `${percent}%`
+        }
+      }
+      return item
+    })
+    updateProgress({ items: newItems, total })
+  }
 
   const handleTableChange: TableProps<IFileItem>['onChange'] = (
     { current, pageSize },
@@ -56,13 +80,33 @@ export default () => {
     },
     {
       title: '操作',
-      render: (_: any, { id, filename }: IFileItem) => (
+      render: (
+        _: any,
+        {
+          id,
+          filename,
+          loadingDownload,
+          loadingDownloadSeal,
+          downloadProgress,
+          downloadSealProgress
+        }: IFileItem
+      ) => (
         <Space size="middle">
-          <Button type="link" loading={loading} onClick={() => handleDownload({ id, filename })}>
-            下载原始文件
+          <Button
+            type="link"
+            loading={loadingDownload as boolean}
+            onClick={() => handleDownload({ id, filename }, handleUpdateProgress)}
+          >
+            {loadingDownload ? `下载中 ${downloadProgress}` : '下载原始文件'}
           </Button>
-          <Button type="link" onClick={() => handleDownloadSeal({ id, filename })}>
-            下载盖章文件
+          <Button
+            type="link"
+            loading={loadingDownloadSeal as boolean}
+            onClick={() =>
+              handleDownloadSeal({ is_seal: true, id, filename }, handleUpdateProgress)
+            }
+          >
+            {loadingDownloadSeal ? `下载中 ${downloadSealProgress}` : '下载盖章文件'}
           </Button>
         </Space>
       )

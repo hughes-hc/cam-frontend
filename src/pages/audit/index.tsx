@@ -60,7 +60,7 @@ export default () => {
   return (
     <div>
       <Search
-        placeholder="请输入"
+        placeholder="请输入档案名称"
         onSearch={val => setQuery({ pattern: val })}
         style={{ width: '100%', marginBottom: 20 }}
       />

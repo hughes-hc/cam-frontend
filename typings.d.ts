@@ -15,6 +15,7 @@ declare global {
     page: number
     page_size: number
     pattern: string
+    pattern_by?: string
     order?: SortOrder
   }
 }

@@ -1,4 +1,4 @@
-import { getFileList } from '@/services/search'
+import { addCompany, deleteCompany, getCompanies, updateCompany } from '@/services/company'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useRequest, useSetState } from 'ahooks'
 import {
@@ -16,6 +16,7 @@ import {
   message
 } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
+import { history } from 'umi'
 
 const { Text } = Typography
 const { Search } = Input
@@ -33,53 +34,59 @@ export default () => {
   const { page, page_size, pattern, pattern_by, order } = query
   const [form] = useForm()
 
-  const { data, loading } = useRequest(() => getFileList(query), {
+  const { data, loading } = useRequest(() => getCompanies(query), {
     refreshDeps: [page, page_size, pattern, order]
   })
   const { total = 0, items = [] } = data || {}
 
-  const { loadingAdd, run: runAdd } = useRequest(fetch, {
+  const { loading: loadingAdd, run: runAdd } = useRequest(addCompany, {
     manual: true,
     onSuccess: () => {
       message.success('新增成功')
     }
   })
 
-  const { loadingEdit, run: runEdit } = useRequest(fetch, {
+  const { loading: loadingEdit, run: runEdit } = useRequest(updateCompany, {
     manual: true,
     onSuccess: () => {
       message.success('编辑成功')
     }
   })
 
-  const { loadingDelete, run: runDelete } = useRequest(fetch, {
+  const { loading: loadingDelete, run: runDelete } = useRequest(deleteCompany, {
     manual: true,
     onSuccess: () => {
       message.success('删除成功')
     }
   })
 
-  const handleTableChange: TableProps<IFileItem>['onChange'] = ({ current, pageSize }, _) => {
+  const handleTableChange: TableProps<ICompanyItem>['onChange'] = ({ current, pageSize }, _) => {
     setQuery({ page: current ?? page, page_size: pageSize ?? page_size })
   }
 
-  const handleViewDetail = (id: number) => {}
+  const handleViewDetail = ({ id }: ICompanyItem) => {
+    history.push(`/detail/${id}`)
+  }
 
-  const handleAddOrEdit = (params?: any) => {
+  const handleAddOrEdit = (params?: ICompanyItem) => {
     const isEdit = !!params
     Modal.confirm({
       title: isEdit ? '编辑企业信息' : '新增企业信息',
       icon: null,
       width: 540,
       content: (
-        <Form form={form} labelCol={{ span: 7 }} wrapperCol={{ offset: 1, span: 16 }}>
+        <Form<ICompanyForm> form={form} labelCol={{ span: 7 }} wrapperCol={{ offset: 1, span: 16 }}>
           <Form.Item name="name" label="企业名称" rules={[{ required: true }]}>
             <Input placeholder="请输入" />
           </Form.Item>
-          <Form.Item name="name" label="统一社会信用代码" rules={[{ required: true }]}>
+          <Form.Item
+            name="social_credit_code"
+            label="统一社会信用代码"
+            rules={[{ required: true }]}
+          >
             <Input placeholder="请输入" disabled={isEdit} />
           </Form.Item>
-          <Form.Item name="name" label="企业注册号" rules={[{ required: true }]}>
+          <Form.Item name="reg_num" label="企业注册号" rules={[{ required: true }]}>
             <Input placeholder="请输入" disabled={isEdit} />
           </Form.Item>
         </Form>
@@ -87,59 +94,61 @@ export default () => {
       okText: '保存',
       cancelText: '取消',
       onOk: () => {
-        return form.validateFields().then(values => values)
+        return form.validateFields().then(values => (isEdit ? runEdit(values) : runAdd(values)))
       },
-      // confirmLoading: loadingAdd || loadingEdit,
+      okButtonProps: {
+        loading: loadingAdd || loadingEdit
+      },
       onCancel: () => {
         form.resetFields()
       }
     })
   }
 
-  const handleDelete = ({ id, name }) => {
+  const handleDelete = ({ id, name }: ICompanyItem) => {
     Modal.confirm({
       title: '确定要删除吗?',
-      content: <Text type="danger">{name}123</Text>,
+      content: <Text type="danger">{name}</Text>,
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
-        return runDelete(id)
+        return runDelete({ id })
       }
     })
   }
 
-  const columns: ColumnsType<IFileItem> = [
+  const columns: ColumnsType<ICompanyItem> = [
     {
       title: '企业名称',
-      dataIndex: 'filename',
+      dataIndex: 'name',
       width: '40%'
     },
     {
       title: '企业注册号',
-      dataIndex: 'gender',
+      dataIndex: 'reg_num',
       width: '20%'
     },
     {
       title: '卷案号',
-      dataIndex: 'gender',
+      dataIndex: 'volume_num',
       width: '20%'
     },
     {
       title: '统一社会信用代码',
-      dataIndex: 'gender',
+      dataIndex: 'social_credit_code',
       width: '30%'
     },
     {
       title: '操作',
-      render: (_: any, { id, name }: IFileItem) => (
+      render: (_, record) => (
         <Space size="small" split={<Divider type="vertical" />}>
-          <Button type="link" onClick={() => handleViewDetail(id)}>
+          <Button type="link" onClick={() => handleViewDetail(record)}>
             详情
           </Button>
-          <Button type="link" onClick={() => handleAddOrEdit({ id, name })}>
+          <Button type="link" onClick={() => handleAddOrEdit(record)}>
             编辑
           </Button>
-          <Button type="link" onClick={() => handleDelete({ id, name })}>
+          <Button type="link" onClick={() => handleDelete(record)} loading={loadingDelete}>
             删除
           </Button>
         </Space>

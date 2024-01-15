@@ -18,7 +18,8 @@
     "js-file-download": "^0.4.12",
     "lodash": "^4.17.21",
     "qs": "^6.11.2",
-    "umi": "^4.0.90"
+    "umi": "^4.0.90",
+    "url-pattern": "^1.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",

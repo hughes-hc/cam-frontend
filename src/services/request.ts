@@ -3,6 +3,7 @@ import { notification } from 'antd'
 import axios, { AxiosResponse } from 'axios'
 import { history } from 'umi'
 import FileDownload from 'js-file-download'
+import UrlPattern from 'url-pattern'
 
 const getFileInfo = (response: AxiosResponse) => {
   const contentType = response.headers['content-type'] as string
@@ -20,6 +21,18 @@ const request = axios.create()
 
 request.interceptors.request.use(config => {
   config.headers['Authorization'] = localStorage.getItem(CAM_TOKEN_KEY)
+
+  // 创建一个UrlPattern对象
+  const pattern = new UrlPattern(config.url as string)
+
+  // 根据config.params替换URL中的动态参数并重新赋值给config.url
+  config.url = pattern.stringify(config.params)
+
+  // 移除已经被替换掉的参数
+  const usedParams = pattern.match(config.url)
+  for (let usedParam in usedParams) {
+    delete config.params[usedParam]
+  }
 
   return config
 })

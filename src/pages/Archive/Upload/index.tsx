@@ -4,7 +4,7 @@ import { Alert, Button, Flex, Upload, message } from 'antd'
 import { useState } from 'react'
 import styles from './index.less'
 import { useRequest } from 'ahooks'
-import { upload } from '@/services/import'
+import { archiveUpload } from '@/services/archive'
 import { RcFile } from 'antd/es/upload'
 
 const { Dragger } = Upload
@@ -19,7 +19,7 @@ export default () => {
       fileList.forEach(file => {
         formData.append('files', file.originFileObj as RcFile)
       })
-      return upload(formData, setPercent)
+      return archiveUpload(formData, setPercent)
     },
     {
       manual: true,

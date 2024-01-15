@@ -18,4 +18,8 @@ declare global {
     pattern_by?: string
     order?: SortOrder
   }
+
+  interface IParam {
+    id: number
+  }
 }

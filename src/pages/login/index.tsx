@@ -1,10 +1,9 @@
+import { CAM_TOKEN_KEY } from '@/common/constant'
 import { getCaptcha, login } from '@/services/login'
+import { useRequest } from 'ahooks'
 import { Button, Col, Form, Input, Row } from 'antd'
 import { history } from 'umi'
-import { useRequest } from 'ahooks'
-import { CAM_TOKEN_KEY } from '@/common/constant'
 import styles from './index.less'
-import bgImg from '@/assets/images/login_bg.png'
 
 type FieldType = ILoginParam
 

@@ -1,8 +1,17 @@
 /// <reference path="index.d.ts" />
 import request from '../request'
 
-export const getFileList = (params: IQuery) => {
-  return request.get<IQuery, ITable<IFileItem>>('/api/v1/file/list', { params })
+export const archiveUpload = (params: FormData, callback?: Function) => {
+  return request.post<FormData, string>('/api/v1/archive/upload', params, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: function (progressEvent) {
+      // 计算上传进度百分比
+      const percentCompleted = Math.round(
+        (progressEvent.loaded * 100) / (progressEvent.total as number)
+      )
+      callback?.(percentCompleted)
+    }
+  })
 }
 
 export const downloadFile = (params: IDownloadParams, callback?: Function) => {

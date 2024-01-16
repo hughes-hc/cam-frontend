@@ -1,19 +1,24 @@
 import { getCompany } from '@/services/company'
 import { useRequest } from 'ahooks'
-import { Descriptions, Flex } from 'antd'
+import { Descriptions, Flex, List } from 'antd'
+import { useParams } from 'umi'
 
 export default () => {
-  const { data } = useRequest(getCompany)
-  const { name, reg_number, social_credit_code, volume_num } = data || {}
+  const { id } = useParams()
+  const { data: companyInfo } = useRequest(() => getCompany({ id: Number(id) }))
+  const { name, reg_num, social_credit_code, volume_num } = companyInfo || {}
+  const { data: archiveInfo = [] } = useRequest(() => getCompany({ id: Number(id) }))
 
   return (
-    <Flex>
+    <Flex vertical>
       <Descriptions
+        bordered
+        column={3}
         title={name}
         items={[
           {
             label: '企业注册号',
-            children: reg_number
+            children: reg_num
           },
           {
             label: '统一社会信用代码',
@@ -25,6 +30,19 @@ export default () => {
           }
         ]}
       />
+      {/* <List
+        itemLayout="horizontal"
+        dataSource={archiveInfo}
+        renderItem={(item, index) => (
+          <List.Item>
+            <List.Item.Meta
+              avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
+              title={<a href="https://ant.design">{item.title}</a>}
+              description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+            />
+          </List.Item>
+        )}
+      /> */}
     </Flex>
   )
 }

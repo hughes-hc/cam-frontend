@@ -1,7 +1,7 @@
 interface ICompanyItem {
   id: number
   name: string
-  reg_number: string
+  reg_num: string
   social_credit_code: string
   volume_num: number
   created_at: number

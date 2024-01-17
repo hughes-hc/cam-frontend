@@ -26,12 +26,15 @@ request.interceptors.request.use(config => {
   const pattern = new UrlPattern(config.url as string)
 
   // 根据config.params替换URL中的动态参数并重新赋值给config.url
-  config.url = pattern.stringify(config.params)
+  config.url = pattern.stringify(
+    config.method?.toUpperCase() === 'GET' ? config.params : config.data
+  )
 
   // 移除已经被替换掉的参数
   const usedParams = pattern.match(config.url)
   for (let usedParam in usedParams) {
-    delete config.params[usedParam]
+    delete config.params?.[usedParam]
+    delete config.data?.[usedParam]
   }
 
   return config
@@ -39,10 +42,10 @@ request.interceptors.request.use(config => {
 
 request.interceptors.response.use(
   response => {
-    const { isFile, fileName } = getFileInfo(response)
-    if (isFile && fileName !== 'unknown') {
-      return FileDownload(response.data, decodeURIComponent(fileName))
-    }
+    // const { isFile, fileName } = getFileInfo(response)
+    // if (isFile && fileName !== 'unknown') {
+    //   return FileDownload(response.data, decodeURIComponent(fileName))
+    // }
 
     return response.data
   },

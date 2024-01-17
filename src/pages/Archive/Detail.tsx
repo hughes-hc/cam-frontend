@@ -1,12 +1,18 @@
 import { getArchiveFile, getArchivesList } from '@/services/archive'
 import { getCompany } from '@/services/company'
-import { FilePdfOutlined, FilePdfTwoTone } from '@ant-design/icons'
+import { FilePdfTwoTone } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { Badge, Descriptions, Flex, List, Modal, Progress, Skeleton } from 'antd'
+import fileDownload from 'js-file-download'
+import { find, times } from 'lodash'
 import { useState } from 'react'
+import Scrollbars from 'react-custom-scrollbars'
+import { Document, Page, pdfjs } from 'react-pdf'
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
+import 'react-pdf/dist/esm/Page/TextLayer.css'
 import { useParams } from 'umi'
-import { Document, Page } from 'react-pdf'
-import { AutoSizer, List as VirtualList } from 'react-virtualized'
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
 
 export default () => {
   const { id } = useParams()
@@ -21,11 +27,13 @@ export default () => {
   const { data: archiveInfo = [], loading: loadingList } = useRequest(() =>
     getArchivesList({ companyId: companyId })
   )
+  const activeArchive = find(archiveInfo, item => item.id === activeId)
 
   const { data: archivePdf } = useRequest(() => getArchiveFile({ id: activeId }, setProgress), {
     ready: !!activeId,
     refreshDeps: [activeId]
   })
+  const fileURL = archivePdf ? URL.createObjectURL(archivePdf) : null
 
   const resetViewStatus = () => {
     setActiveId(0)
@@ -33,7 +41,11 @@ export default () => {
     setNumPages(0)
   }
 
-  const handleDownload = () => {}
+  const handleDownload = () => {
+    if (archivePdf) {
+      fileDownload(archivePdf, activeArchive?.volume_part_num + '.pdf')
+    }
+  }
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages)
@@ -104,30 +116,16 @@ export default () => {
                 status="active"
                 strokeColor={{ from: '#108ee9', to: '#87d068' }}
               />
-              <Skeleton.Node active={true}>
-                <FilePdfOutlined style={{ fontSize: 100, color: '#bfbfbf' }} />
-              </Skeleton.Node>
+              <Skeleton active />
             </>
           )}
-          {/* <Document file={archivePdf} onLoadSuccess={onDocumentLoadSuccess}>
-            <AutoSizer>
-              {({ height, width }) => (
-                <VirtualList
-                  height={height}
-                  width={width}
-                  rowCount={numPages}
-                  rowHeight={height}
-                  rowRenderer={({ index, key, style }) => {
-                    return (
-                      <div key={key} style={style}>
-                        <Page pageNumber={index + 1} />
-                      </div>
-                    )
-                  }}
-                />
-              )}
-            </AutoSizer>
-          </Document> */}
+          <Scrollbars style={{ width: 850, height: 600 }}>
+            <Document file={fileURL} onLoadSuccess={onDocumentLoadSuccess}>
+              {times(numPages, i => (
+                <Page pageNumber={i + 1} key={i} />
+              ))}
+            </Document>
+          </Scrollbars>
         </Modal>
       )}
     </Flex>

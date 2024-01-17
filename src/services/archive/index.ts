@@ -17,8 +17,8 @@ export const archiveUpload = (params: FormData, callback?: Function) => {
 export const getArchivesList = (params: IArchivesReq) =>
   request.get<IArchivesReq, IArchive[]>('/api/v1/archives/:companyId', { params })
 
-export const getArchiveFile = (params: IParam, callback?: Function) => {
-  return request.post<IDownloadParams, File>('/api/v1/archives/download/:id', params, {
+export const getArchiveFile = (params: IParam, callback?: Function) =>
+  request.post<IParam, Blob>('/api/v1/archives/download', params, {
     responseType: 'blob',
     onDownloadProgress: progressEvent => {
       const percentCompleted = Math.floor(
@@ -27,7 +27,6 @@ export const getArchiveFile = (params: IParam, callback?: Function) => {
       callback?.(params, percentCompleted, Boolean(percentCompleted < 100))
     }
   })
-}
 
 export const downloadFile = (params: IDownloadParams, callback?: Function) => {
   return request.post<IDownloadParams, File>('/api/v1/file/download', params, {

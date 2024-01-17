@@ -6,6 +6,20 @@ interface IFileItem {
   [string: string]: string | boolean
 }
 
+interface IArchivesReq {
+  companyId: number
+}
+
+interface IArchive {
+  id: number
+  volume_num: string
+  volume_part_num: string
+  reg_num: string
+  volume_type: string
+  pages: number
+  upload_time: string
+}
+
 interface IDownloadParams {
   id: number
   filename: string

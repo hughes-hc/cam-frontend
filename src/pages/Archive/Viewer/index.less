@@ -1,0 +1,49 @@
+.viewer {
+  .document {
+    position: relative;
+    display: flex;
+    padding-top: 40px;
+    font-size: 20px;
+
+    :global {
+      .anticon {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .toolbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  .outlineContainer {
+    color: #999;
+
+    .navMode.active {
+      color: #333;
+    }
+
+    .outline {
+      > ul {
+        padding: 0 10px;
+        margin-top: 0;
+        font-size: 14px;
+        list-style: none;
+
+        li {
+          margin-bottom: 10px;
+
+          a {
+            color: #333;
+          }
+
+          &:hover {
+            background: #eee;
+          }
+        }
+      }
+    }
+  }
+}

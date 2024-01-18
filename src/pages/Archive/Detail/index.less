@@ -1,0 +1,23 @@
+.content {
+  position: relative;
+
+  .extra {
+    position: absolute;
+    top: 0;
+    left: -10%;
+    z-index: -1;
+    width: 120%;
+    height: 100%;
+
+    .changeBtn {
+      font-size: 60px;
+      color: #ddd;
+      cursor: pointer;
+
+      &.disabled {
+        color: #eee;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

@@ -1,25 +1,24 @@
 import { getArchiveFile, getArchivesList } from '@/services/archive'
 import { getCompany } from '@/services/company'
-import { FilePdfTwoTone } from '@ant-design/icons'
-import { useRequest } from 'ahooks'
-import { Badge, Descriptions, Flex, List, Modal, Progress, Skeleton } from 'antd'
+import { CaretLeftFilled, CaretRightFilled, FilePdfTwoTone } from '@ant-design/icons'
+import { useRequest, useToggle } from 'ahooks'
+import { Badge, Button, Descriptions, Flex, List, Modal, Progress, Skeleton } from 'antd'
 import fileDownload from 'js-file-download'
-import { find, times } from 'lodash'
+import { find, findIndex } from 'lodash'
 import { useState } from 'react'
-import Scrollbars from 'react-custom-scrollbars'
-import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import { useParams } from 'umi'
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+import Viewer from '../Viewer'
+import styles from './index.less'
+import classNames from 'classnames'
 
 export default () => {
   const { id } = useParams()
   const companyId = Number(id)
   const [activeId, setActiveId] = useState(0)
   const [progress, setProgress] = useState(0)
-  const [numPages, setNumPages] = useState(0)
+  const [isFullScreen, { toggle: toggleFullScreen }] = useToggle(false)
 
   const { data: companyInfo } = useRequest(() => getCompany({ id: companyId }))
   const { name, reg_num, social_credit_code, volume_num } = companyInfo || {}
@@ -28,6 +27,7 @@ export default () => {
     getArchivesList({ companyId: companyId })
   )
   const activeArchive = find(archiveInfo, item => item.id === activeId)
+  const activeArchiveIndex = findIndex(archiveInfo, item => item.id === activeId)
 
   const { data: archivePdf } = useRequest(() => getArchiveFile({ id: activeId }, setProgress), {
     ready: !!activeId,
@@ -38,7 +38,6 @@ export default () => {
   const resetViewStatus = () => {
     setActiveId(0)
     setProgress(0)
-    setNumPages(0)
   }
 
   const handleDownload = () => {
@@ -47,34 +46,51 @@ export default () => {
     }
   }
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
-    setNumPages(numPages)
+  const handlePrev = () => {
+    if (activeArchiveIndex > 0) {
+      setActiveId(archiveInfo[activeArchiveIndex - 1].id)
+    }
+  }
+
+  const handleNext = () => {
+    if (activeArchiveIndex < archiveInfo.length - 1) {
+      setActiveId(archiveInfo[activeArchiveIndex + 1].id)
+    }
   }
 
   return (
     <Flex vertical gap={40}>
       <Descriptions
         bordered
-        column={3}
-        title={name}
+        column={2}
+        title={'基本信息'}
         items={[
+          {
+            label: '企业名称',
+            children: name
+          },
           {
             label: '企业注册号',
             children: reg_num
           },
           {
-            label: '统一社会信用代码',
-            children: social_credit_code
-          },
-          {
             label: '卷案号',
             children: volume_num
+          },
+          {
+            label: '统一社会信用代码',
+            children: social_credit_code
           }
         ]}
       />
       <List
         loading={loadingList}
-        header={<h3>档案列表</h3>}
+        header={
+          <Flex justify="space-between" align="center">
+            <h3>档案列表</h3>
+            <Button type="primary">新增档案</Button>
+          </Flex>
+        }
         itemLayout="horizontal"
         size="large"
         dataSource={archiveInfo}
@@ -103,32 +119,49 @@ export default () => {
         <Modal
           title="档案预览"
           open={!!activeId}
-          width={1000}
+          width={isFullScreen ? '100vw' : 1200}
           okText="下载"
           cancelText="关闭"
           onOk={handleDownload}
           onCancel={resetViewStatus}
           maskClosable={false}
         >
-          {progress < 100 && (
-            <>
-              <Progress
-                percent={progress}
-                status="active"
-                strokeColor={{ from: '#108ee9', to: '#87d068' }}
-              />
-              <Skeleton active />
-            </>
-          )}
-          <Document file={fileURL} onLoadSuccess={onDocumentLoadSuccess}>
-            <Scrollbars style={{ width: 850, height: 600 }}>
-              <Flex vertical align="center" gap={10} style={{ background: '#666' }}>
-                {times(numPages, i => (
-                  <Page pageNumber={i + 1} key={i} />
-                ))}
+          <div className={styles.content}>
+            {progress < 100 && (
+              <>
+                <Progress
+                  percent={progress}
+                  status="active"
+                  strokeColor={{ from: '#108ee9', to: '#87d068' }}
+                />
+                <Skeleton active />
+              </>
+            )}
+            <Viewer
+              file={fileURL}
+              filename={activeArchive?.volume_part_num || ''}
+              isFullScreen={isFullScreen}
+              onFullScreen={toggleFullScreen}
+            />
+            {!isFullScreen && (
+              <Flex justify="space-between" align="center" className={styles.extra}>
+                <CaretLeftFilled
+                  title="上份档案"
+                  className={classNames(styles.changeBtn, {
+                    [styles.disabled]: activeArchiveIndex === 0
+                  })}
+                  onClick={handlePrev}
+                />
+                <CaretRightFilled
+                  title="下份档案"
+                  className={classNames(styles.changeBtn, {
+                    [styles.disabled]: activeArchiveIndex === archiveInfo.length - 1
+                  })}
+                  onClick={handleNext}
+                />
               </Flex>
-            </Scrollbars>
-          </Document>
+            )}
+          </div>
         </Modal>
       )}
     </Flex>

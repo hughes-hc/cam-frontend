@@ -108,6 +108,7 @@ export default () => {
           cancelText="关闭"
           onOk={handleDownload}
           onCancel={resetViewStatus}
+          maskClosable={false}
         >
           {progress < 100 && (
             <>
@@ -119,13 +120,15 @@ export default () => {
               <Skeleton active />
             </>
           )}
-          <Scrollbars style={{ width: 850, height: 600 }}>
-            <Document file={fileURL} onLoadSuccess={onDocumentLoadSuccess}>
-              {times(numPages, i => (
-                <Page pageNumber={i + 1} key={i} />
-              ))}
-            </Document>
-          </Scrollbars>
+          <Document file={fileURL} onLoadSuccess={onDocumentLoadSuccess}>
+            <Scrollbars style={{ width: 850, height: 600 }}>
+              <Flex vertical align="center" gap={10} style={{ background: '#666' }}>
+                {times(numPages, i => (
+                  <Page pageNumber={i + 1} key={i} />
+                ))}
+              </Flex>
+            </Scrollbars>
+          </Document>
         </Modal>
       )}
     </Flex>

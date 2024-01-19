@@ -6,6 +6,7 @@ import { chain } from 'lodash'
 import { useEffect } from 'react'
 import { Icon, Link, Outlet, history, useLocation } from 'umi'
 import styles from './index.less'
+import zhCN from 'antd/locale/zh_CN'
 
 const { Title } = Typography
 const { Header, Content } = Layout
@@ -49,6 +50,7 @@ export default () => {
 
   return (
     <ConfigProvider
+      locale={zhCN}
       theme={{
         components: {
           Menu: {

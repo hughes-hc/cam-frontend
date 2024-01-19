@@ -1,3 +1,4 @@
+import { validateNoSpaces } from '@/common/validate'
 import { addCompany, deleteCompany, getCompanies, updateCompany } from '@/services/company'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useRequest, useSetState } from 'ahooks'
@@ -21,6 +22,7 @@ import { history } from 'umi'
 const { Text } = Typography
 const { Search } = Input
 const { useForm } = Form
+const { useModal } = Modal
 
 const initialQuery = {
   page: 1,
@@ -33,9 +35,10 @@ export default () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
   const { page, page_size, pattern, pattern_by, order } = query
   const [form] = useForm()
+  const [modal, modalContext] = useModal()
 
   const { data, loading } = useRequest(() => getCompanies(query), {
-    refreshDeps: [page, page_size, pattern, order]
+    refreshDeps: [page, page_size, pattern, pattern_by, order]
   })
   const { total = 0, items = [] } = data || {}
 
@@ -70,23 +73,31 @@ export default () => {
 
   const handleAddOrEdit = (params?: ICompanyItem) => {
     const isEdit = !!params
-    Modal.confirm({
+    modal.confirm({
       title: isEdit ? '编辑企业信息' : '新增企业信息',
       icon: null,
       width: 540,
       content: (
         <Form<ICompanyForm> form={form} labelCol={{ span: 7 }} wrapperCol={{ offset: 1, span: 16 }}>
-          <Form.Item name="name" label="企业名称" rules={[{ required: true }]}>
+          <Form.Item
+            name="name"
+            label="企业名称"
+            rules={[{ required: true }, { max: 20 }, { validator: validateNoSpaces }]}
+          >
             <Input placeholder="请输入" />
           </Form.Item>
           <Form.Item
             name="social_credit_code"
             label="统一社会信用代码"
-            rules={[{ required: true }]}
+            rules={[{ required: true }, { max: 18 }, { validator: validateNoSpaces }]}
           >
             <Input placeholder="请输入" disabled={isEdit} />
           </Form.Item>
-          <Form.Item name="reg_num" label="企业注册号" rules={[{ required: true }]}>
+          <Form.Item
+            name="reg_num"
+            label="企业注册号"
+            rules={[{ required: true }, { max: 15 }, { validator: validateNoSpaces }]}
+          >
             <Input placeholder="请输入" disabled={isEdit} />
           </Form.Item>
         </Form>
@@ -202,6 +213,7 @@ export default () => {
         loading={loading}
         onChange={handleTableChange}
       />
+      {modalContext}
     </div>
   )
 }

@@ -1,8 +1,15 @@
 import { computeNextPage } from '@/common/utils'
 import { validateNoSpaces } from '@/common/validate'
-import { addCompany, deleteCompany, getCompanies, updateCompany } from '@/services/company'
+import {
+  addCompany,
+  companyBatchImport,
+  deleteCompany,
+  getCompanies,
+  getTemplate,
+  updateCompany
+} from '@/services/company'
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { useRequest, useSetState } from 'ahooks'
+import { useRequest, useSetState, useToggle } from 'ahooks'
 import {
   Button,
   Divider,
@@ -15,17 +22,22 @@ import {
   Table,
   Tooltip,
   Typography,
+  Upload,
+  UploadFile,
+  UploadProps,
   message
 } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
+import { RcFile } from 'antd/es/upload'
+import fileDownload from 'js-file-download'
+import { useState } from 'react'
 import { history } from 'umi'
+import AddOrEditModal from './AddOrEditModal'
 
 const { Text } = Typography
 const { Search } = Input
-const { useForm } = Form
-const { useModal } = Modal
 
-const initialQuery = {
+const initialQuery: IQuery = {
   page: 1,
   page_size: 10,
   pattern: '',
@@ -35,8 +47,9 @@ const initialQuery = {
 export default () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
   const { page, page_size, pattern, pattern_by, order } = query
-  const [form] = useForm()
-  const [modal, modalContext] = useModal()
+  const [fileList, setFileList] = useState<UploadFile[]>([])
+  const [visible, { toggle: toggleVisible }] = useToggle()
+  const [initialData, setInitialData] = useState<ICompanyForm | undefined>()
 
   const {
     data,
@@ -47,33 +60,10 @@ export default () => {
   })
   const { total = 0, items = [] } = data || {}
 
-  const { loading: loadingAdd, run: runAdd } = useRequest(addCompany, {
+  const { loading: loadingImport, run: runBatchImport } = useRequest(companyBatchImport, {
     manual: true,
-    onSuccess: companyInfo => {
-      if (companyInfo.exist) {
-        Modal.confirm({
-          title: '该企业已存在，是否进行更新操作',
-          content: <Text type="danger">{companyInfo.name}</Text>,
-          okText: '确定',
-          cancelText: '取消',
-          onOk: () => {
-            handleAddOrEdit(companyInfo)
-          },
-          onCancel: () => {
-            form.resetFields()
-          }
-        })
-      } else {
-        message.success('新增成功')
-        refreshTable({ page: 1 })
-      }
-    }
-  })
-
-  const { loading: loadingEdit, run: runEdit } = useRequest(updateCompany, {
-    manual: true,
-    onSuccess: () => {
-      message.success('编辑成功')
+    onSuccess: res => {
+      message.success(res)
       refreshTable({ page: 1 })
     }
   })
@@ -86,6 +76,17 @@ export default () => {
     }
   })
 
+  const handleDownloadTemplate = () => {
+    getTemplate()
+      .then(res => {
+        message.success('模板下载成功')
+        fileDownload(res, '批量导入企业信息模板.xlsx')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+
   const handleTableChange: TableProps<ICompanyItem>['onChange'] = ({ current, pageSize }, _) => {
     setQuery({ page: current ?? page, page_size: pageSize ?? page_size })
   }
@@ -95,51 +96,12 @@ export default () => {
   }
 
   const handleAddOrEdit = (params?: ICompanyItem) => {
-    const isEdit = !!params
-    isEdit && form.setFieldsValue({ ...params })
-    modal.confirm({
-      title: isEdit ? '编辑企业信息' : '新增企业信息',
-      icon: null,
-      width: 540,
-      content: (
-        <Form<ICompanyForm> form={form} labelCol={{ span: 7 }} wrapperCol={{ offset: 1, span: 16 }}>
-          <Form.Item
-            name="name"
-            label="企业名称"
-            rules={[{ required: true }, { max: 50 }, { validator: validateNoSpaces }]}
-          >
-            <Input placeholder="请输入" />
-          </Form.Item>
-          <Form.Item
-            name="reg_num"
-            label="企业注册号"
-            rules={[{ required: true }, { len: 15 }, { validator: validateNoSpaces }]}
-          >
-            <Input placeholder="请输入" disabled={isEdit} />
-          </Form.Item>
-          <Form.Item
-            name="social_credit_code"
-            label="统一社会信用代码"
-            rules={[{ required: true }, { len: 18 }, { validator: validateNoSpaces }]}
-          >
-            <Input placeholder="请输入" disabled={isEdit} />
-          </Form.Item>
-        </Form>
-      ),
-      okText: '保存',
-      cancelText: '取消',
-      onOk: () => {
-        return form
-          .validateFields()
-          .then(values => (isEdit ? runEdit({ id: params?.id, ...values }) : runAdd(values)))
-      },
-      okButtonProps: {
-        loading: loadingAdd || loadingEdit
-      },
-      onCancel: () => {
-        form.resetFields()
-      }
-    })
+    setInitialData(params)
+    toggleVisible()
+  }
+
+  const handleBatchImport = () => {
+    history.push('/batch')
   }
 
   const handleDelete = ({ id, name }: ICompanyItem) => {
@@ -193,6 +155,39 @@ export default () => {
     }
   ]
 
+  const uploadProps: UploadProps<UploadFile> = {
+    name: 'file',
+    multiple: false,
+    maxCount: 1,
+    accept: '.xlsx',
+    fileList,
+    showUploadList: false,
+    beforeUpload() {
+      // 返回false在点击上传按钮时再传递文件
+      return false
+    },
+    onChange(info) {
+      const { fileList } = info
+      setFileList(fileList)
+
+      Modal.confirm({
+        title: '确定要导入吗?',
+        content: (
+          <Flex>
+            <Text type="success">{fileList[0]?.name}</Text>
+          </Flex>
+        ),
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => {
+          const formData = new FormData()
+          formData.append('file', fileList[0].originFileObj as RcFile)
+          return runBatchImport(formData)
+        }
+      })
+    }
+  }
+
   return (
     <div>
       <Flex style={{ marginBottom: 20 }} justify="space-between">
@@ -219,10 +214,16 @@ export default () => {
           <Space.Compact>
             <Tooltip title="下载模板后，按照模板格式规范填写，进行批量导入" placement="bottomLeft">
               <QuestionCircleOutlined style={{ color: '#1677ff' }} />
-              <Button type="link">下载模板</Button>
+              <Button type="link" onClick={() => handleDownloadTemplate()}>
+                下载模板
+              </Button>
             </Tooltip>
           </Space.Compact>
-          <Button type="primary">批量导入</Button>
+          <Upload {...uploadProps}>
+            <Button type="primary" onClick={handleBatchImport}>
+              批量导入
+            </Button>
+          </Upload>
           <Button type="primary" style={{ minWidth: 80 }} onClick={() => handleAddOrEdit()}>
             新增
           </Button>
@@ -240,7 +241,7 @@ export default () => {
         loading={loading}
         onChange={handleTableChange}
       />
-      {modalContext}
+      <AddOrEditModal {...{ visible, toggleVisible, initialData, setInitialData, refreshTable }} />
     </div>
   )
 }

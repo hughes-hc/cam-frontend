@@ -1,7 +1,7 @@
 /**
  *
- * @param {number} currentItems 当前页的数据条数
  * @param {number} currentPage 当前所在的页码
+ * @param {number} currentItems 当前页的数据条数
  * @param {number} deleteCount 默认为1，删除的数据条数
  * @returns {number} 新的页码
  */

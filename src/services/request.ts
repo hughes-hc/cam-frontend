@@ -27,7 +27,7 @@ request.interceptors.request.use(config => {
 
   // 根据config.params替换URL中的动态参数并重新赋值给config.url
   config.url = pattern.stringify(
-    config.method?.toUpperCase() === 'GET' ? config.params : config.data
+    ['GET', 'DELETE'].includes(config.method?.toUpperCase() as string) ? config.params : config.data
   )
 
   // 移除已经被替换掉的参数

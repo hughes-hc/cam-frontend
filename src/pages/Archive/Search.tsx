@@ -1,3 +1,4 @@
+import { computeNextPage } from '@/common/utils'
 import { validateNoSpaces } from '@/common/validate'
 import { addCompany, deleteCompany, getCompanies, updateCompany } from '@/services/company'
 import { QuestionCircleOutlined } from '@ant-design/icons'
@@ -37,15 +38,35 @@ export default () => {
   const [form] = useForm()
   const [modal, modalContext] = useModal()
 
-  const { data, loading } = useRequest(() => getCompanies(query), {
+  const {
+    data,
+    loading,
+    run: refreshTable
+  } = useRequest(newQuery => getCompanies({ ...query, ...newQuery }), {
     refreshDeps: [page, page_size, pattern, pattern_by, order]
   })
   const { total = 0, items = [] } = data || {}
 
   const { loading: loadingAdd, run: runAdd } = useRequest(addCompany, {
     manual: true,
-    onSuccess: () => {
-      message.success('新增成功')
+    onSuccess: companyInfo => {
+      if (companyInfo.exist) {
+        Modal.confirm({
+          title: '该企业已存在，是否进行更新操作',
+          content: <Text type="danger">{companyInfo.name}</Text>,
+          okText: '确定',
+          cancelText: '取消',
+          onOk: () => {
+            handleAddOrEdit(companyInfo)
+          },
+          onCancel: () => {
+            form.resetFields()
+          }
+        })
+      } else {
+        message.success('新增成功')
+        refreshTable({ page: 1 })
+      }
     }
   })
 
@@ -53,6 +74,7 @@ export default () => {
     manual: true,
     onSuccess: () => {
       message.success('编辑成功')
+      refreshTable({ page: 1 })
     }
   })
 
@@ -60,6 +82,7 @@ export default () => {
     manual: true,
     onSuccess: () => {
       message.success('删除成功')
+      refreshTable({ page: computeNextPage(page, items.length) })
     }
   })
 
@@ -73,6 +96,7 @@ export default () => {
 
   const handleAddOrEdit = (params?: ICompanyItem) => {
     const isEdit = !!params
+    isEdit && form.setFieldsValue({ ...params })
     modal.confirm({
       title: isEdit ? '编辑企业信息' : '新增企业信息',
       icon: null,
@@ -82,21 +106,21 @@ export default () => {
           <Form.Item
             name="name"
             label="企业名称"
-            rules={[{ required: true }, { max: 20 }, { validator: validateNoSpaces }]}
+            rules={[{ required: true }, { max: 50 }, { validator: validateNoSpaces }]}
           >
             <Input placeholder="请输入" />
           </Form.Item>
           <Form.Item
-            name="social_credit_code"
-            label="统一社会信用代码"
-            rules={[{ required: true }, { max: 18 }, { validator: validateNoSpaces }]}
+            name="reg_num"
+            label="企业注册号"
+            rules={[{ required: true }, { len: 15 }, { validator: validateNoSpaces }]}
           >
             <Input placeholder="请输入" disabled={isEdit} />
           </Form.Item>
           <Form.Item
-            name="reg_num"
-            label="企业注册号"
-            rules={[{ required: true }, { max: 15 }, { validator: validateNoSpaces }]}
+            name="social_credit_code"
+            label="统一社会信用代码"
+            rules={[{ required: true }, { len: 18 }, { validator: validateNoSpaces }]}
           >
             <Input placeholder="请输入" disabled={isEdit} />
           </Form.Item>
@@ -105,7 +129,9 @@ export default () => {
       okText: '保存',
       cancelText: '取消',
       onOk: () => {
-        return form.validateFields().then(values => (isEdit ? runEdit(values) : runAdd(values)))
+        return form
+          .validateFields()
+          .then(values => (isEdit ? runEdit({ id: params?.id, ...values }) : runAdd(values)))
       },
       okButtonProps: {
         loading: loadingAdd || loadingEdit
@@ -175,17 +201,18 @@ export default () => {
             value={pattern_by}
             options={[
               { label: '企业名称', value: 'name' },
-              { label: '统一社会信用代码', value: 'social_credit_code' },
-              { label: '企业注册号', value: 'reg_num' }
+              { label: '企业注册号', value: 'reg_num' },
+              { label: '统一社会信用代码', value: 'social_credit_code' }
             ]}
-            onChange={val => setQuery({ pattern_by: val })}
+            onChange={val => setQuery({ page: 1, pattern_by: val })}
             style={{ minWidth: 150 }}
           />
           <Search
             placeholder="请输入"
-            onSearch={val => setQuery({ pattern: val })}
+            onSearch={val => setQuery({ page: 1, pattern: val })}
             style={{ width: 350 }}
             enterButton
+            allowClear
           />
         </Space.Compact>
         <Space size="large">

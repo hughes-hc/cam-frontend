@@ -6,6 +6,8 @@ interface ICompanyItem {
   volume_num: number
   created_at: number
   updated_at: number
+  // 当插入的数据已存在会表示为true
+  exist?: boolean
 }
 
 type ICompanyForm = Partial<ICompanyItem>

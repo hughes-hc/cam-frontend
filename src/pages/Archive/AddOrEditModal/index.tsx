@@ -72,9 +72,9 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
       title={isEdit ? '编辑企业信息' : '新增企业信息'}
       onOk={handleAddOrEdit}
       onCancel={() => {
-        setInitialData()
-        toggleVisible()
         form.resetFields()
+        toggleVisible()
+        setInitialData()
       }}
       confirmLoading={loadingAdd || loadingEdit}
     >

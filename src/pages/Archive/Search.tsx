@@ -1,20 +1,11 @@
 import { computeNextPage } from '@/common/utils'
-import { validateNoSpaces } from '@/common/validate'
-import {
-  addCompany,
-  companyBatchImport,
-  deleteCompany,
-  getCompanies,
-  getTemplate,
-  updateCompany
-} from '@/services/company'
+import { companyBatchImport, deleteCompany, getCompanies, getTemplate } from '@/services/company'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { useRequest, useSetState, useToggle } from 'ahooks'
 import {
   Button,
   Divider,
   Flex,
-  Form,
   Input,
   Modal,
   Select,
@@ -100,16 +91,13 @@ export default () => {
     toggleVisible()
   }
 
-  const handleBatchImport = () => {
-    history.push('/batch')
-  }
-
   const handleDelete = ({ id, name }: ICompanyItem) => {
     Modal.confirm({
       title: '确定要删除吗?',
       content: <Text type="danger">{name}</Text>,
       okText: '确定',
       cancelText: '取消',
+      okButtonProps: { loading: loadingImport },
       onOk: () => {
         return runDelete({ id })
       }
@@ -220,9 +208,7 @@ export default () => {
             </Tooltip>
           </Space.Compact>
           <Upload {...uploadProps}>
-            <Button type="primary" onClick={handleBatchImport}>
-              批量导入
-            </Button>
+            <Button type="primary">批量导入</Button>
           </Upload>
           <Button type="primary" style={{ minWidth: 80 }} onClick={() => handleAddOrEdit()}>
             新增

@@ -11,10 +11,9 @@ import { map } from 'lodash'
 
 const { Dragger } = Upload
 
-interface IFileInfo {
+interface IUploadFile extends UploadFile {
   company?: { value: string; label: string }
 }
-type IUploadFile = UploadFile & IFileInfo
 
 export default () => {
   const [fileList, setFileList] = useState<IUploadFile[]>([])
@@ -23,10 +22,10 @@ export default () => {
   const { loading, run: runUpload } = useRequest(
     () => {
       const formData = new FormData()
-      fileList.forEach((file, index) => {
+      fileList.forEach(file => {
         formData.append('files', file.originFileObj as RcFile)
         console.log(file)
-        formData.append(String(index), file.company?.value as string)
+        formData.append('company_id', file.company?.value as string)
       })
       return archiveUpload(formData, setPercent)
     },

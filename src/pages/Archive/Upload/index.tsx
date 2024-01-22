@@ -13,6 +13,7 @@ const { Dragger } = Upload
 
 interface IUploadFile extends UploadFile {
   company?: { value: string; label: string }
+  archive_type?: number
 }
 
 export default () => {
@@ -23,9 +24,11 @@ export default () => {
     () => {
       const formData = new FormData()
       fileList.forEach(file => {
-        formData.append('files', file.originFileObj as RcFile)
         console.log(file)
-        formData.append('company_id', file.company?.value as string)
+
+        formData.append('files', file.originFileObj as RcFile)
+        formData.append('companyId', file.company?.value as string)
+        formData.append('archiveType', String(file.archive_type) as string)
       })
       return archiveUpload(formData, setPercent)
     },
@@ -81,8 +84,8 @@ export default () => {
       setFileList(files)
     },
     iconRender: () => <FilePdfTwoTone style={{ fontSize: 20 }} />,
-    itemRender(originNode, file, fileList) {
-      const { uid, company } = file
+    itemRender(originNode, file: IUploadFile, fileList) {
+      const { uid, company, archive_type } = file
       return (
         <Flex
           align="center"
@@ -122,6 +125,32 @@ export default () => {
               label: name
             }))}
           />
+          <Select
+            placeholder="请选择"
+            size="large"
+            style={{ width: 100 }}
+            options={[
+              { value: 'ESTABLISH', label: '设立' },
+              { value: 'CHANGE', label: '变更' },
+              { value: 'PLEDGE', label: '出质' },
+              { value: 'CANCELLATION', label: '注销' },
+              { value: 'OTHER', label: '其它' }
+            ]}
+            value={archive_type}
+            onChange={value => {
+              setFileList(
+                fileList.map(item => {
+                  if (item.uid === uid) {
+                    return {
+                      ...item,
+                      archive_type: value
+                    }
+                  }
+                  return item
+                })
+              )
+            }}
+          />
         </Flex>
       )
     }
@@ -129,7 +158,7 @@ export default () => {
 
   return (
     <div className={styles.importWrapper}>
-      <Flex vertical gap={40} style={{ width: 600 }}>
+      <Flex vertical gap={40} style={{ width: 650 }}>
         <Alert
           message="上传须知"
           description={

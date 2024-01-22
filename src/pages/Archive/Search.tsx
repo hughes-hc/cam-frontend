@@ -93,7 +93,7 @@ export default () => {
 
   const handleDelete = ({ id, name }: ICompanyItem) => {
     Modal.confirm({
-      title: '确定要删除吗?',
+      title: '是否删除?',
       content: <Text type="danger">{name}</Text>,
       okText: '确定',
       cancelText: '取消',
@@ -200,7 +200,10 @@ export default () => {
         </Space.Compact>
         <Space size="large">
           <Space.Compact>
-            <Tooltip title="下载模板后，按照模板格式规范填写，进行批量导入" placement="bottomLeft">
+            <Tooltip
+              title="下载模板后，按照模板格式规范填写企业信息，进行批量导入"
+              placement="bottomLeft"
+            >
               <QuestionCircleOutlined style={{ color: '#1677ff' }} />
               <Button type="link" onClick={() => handleDownloadTemplate()}>
                 下载模板
@@ -208,7 +211,7 @@ export default () => {
             </Tooltip>
           </Space.Compact>
           <Upload {...uploadProps}>
-            <Button type="primary">批量导入</Button>
+            <Button type="primary">信息导入</Button>
           </Upload>
           <Button type="primary" style={{ minWidth: 80 }} onClick={() => handleAddOrEdit()}>
             新增

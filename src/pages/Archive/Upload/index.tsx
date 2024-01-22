@@ -1,23 +1,32 @@
-import { InboxOutlined } from '@ant-design/icons'
+import { FilePdfTwoTone, InboxOutlined } from '@ant-design/icons'
 import type { UploadFile, UploadProps } from 'antd'
-import { Alert, Button, Flex, Upload, message } from 'antd'
+import { Alert, Button, Empty, Flex, Select, Space, Upload, message } from 'antd'
 import { useState } from 'react'
 import styles from './index.less'
 import { useRequest } from 'ahooks'
 import { archiveUpload } from '@/services/archive'
 import { RcFile } from 'antd/es/upload'
+import { getCompaniesOptions } from '@/services/company'
+import { map } from 'lodash'
 
 const { Dragger } = Upload
 
+interface IFileInfo {
+  company?: { value: string; label: string }
+}
+type IUploadFile = UploadFile & IFileInfo
+
 export default () => {
-  const [fileList, setFileList] = useState<UploadFile[]>([])
+  const [fileList, setFileList] = useState<IUploadFile[]>([])
   const [percent, setPercent] = useState(0)
 
   const { loading, run: runUpload } = useRequest(
     () => {
       const formData = new FormData()
-      fileList.forEach(file => {
+      fileList.forEach((file, index) => {
         formData.append('files', file.originFileObj as RcFile)
+        console.log(file)
+        formData.append(String(index), file.company?.value as string)
       })
       return archiveUpload(formData, setPercent)
     },
@@ -30,21 +39,31 @@ export default () => {
     }
   )
 
+  const { data: companies = [], run: handleSearch } = useRequest(getCompaniesOptions, {
+    manual: true,
+    debounceMaxWait: 10000
+  })
+
   const handleSubmit = () => {
     if (fileList.length === 0) {
       return message.warning('请先选择上传文件')
+    }
+
+    if (fileList.some(file => !file.company)) {
+      return message.warning('请先选择企业名称')
     }
 
     message.info('开始导入文件...')
     runUpload()
   }
 
-  const uploadProps: UploadProps<UploadFile> = {
+  const uploadProps: UploadProps<IUploadFile> = {
     name: 'file',
     multiple: true,
     maxCount: 5,
     accept: '.pdf',
     fileList,
+    listType: 'picture',
     beforeUpload() {
       // 返回false在点击上传按钮时再传递文件
       return false
@@ -61,6 +80,51 @@ export default () => {
         return true
       })
       setFileList(files)
+    },
+    iconRender: () => <FilePdfTwoTone style={{ fontSize: 20 }} />,
+    itemRender(originNode, file, fileList) {
+      const { uid, company } = file
+      return (
+        <Flex
+          align="center"
+          justify="space-between"
+          gap={20}
+          style={{ width: '100%', marginTop: 20 }}
+        >
+          <div className={styles.filItem}>{originNode}</div>
+          <Select
+            size="large"
+            style={{ width: 200 }}
+            allowClear
+            showSearch
+            labelInValue
+            value={company}
+            placeholder={'请输入企业名称'}
+            defaultActiveFirstOption={false}
+            suffixIcon={null}
+            filterOption={false}
+            onSearch={val => handleSearch({ name: val })}
+            onChange={value => {
+              setFileList(
+                fileList.map(item => {
+                  if (item.uid === uid) {
+                    return {
+                      ...item,
+                      company: value
+                    }
+                  }
+                  return item
+                })
+              )
+            }}
+            notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />}
+            options={map(companies, ({ id, name }) => ({
+              value: id,
+              label: name
+            }))}
+          />
+        </Flex>
+      )
     }
   }
 
@@ -72,8 +136,7 @@ export default () => {
           description={
             <>
               <div>1. 文件格式: 仅支持PDF格式文件上传；</div>
-              <div>2. 文件命名: 请规范文件上传命名规范，示例：公司名称-文件名称；</div>
-              <div>3. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不超过50MB；</div>
+              <div>2. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不超过50MB；</div>
             </>
           }
           type="info"

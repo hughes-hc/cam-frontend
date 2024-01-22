@@ -11,3 +11,12 @@ interface ICompanyItem {
 }
 
 type ICompanyForm = Partial<ICompanyItem>
+
+interface IFilter {
+  name: string
+}
+
+interface IFilterItem {
+  id: number
+  name: string
+}

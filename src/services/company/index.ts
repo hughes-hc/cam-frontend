@@ -4,6 +4,9 @@ import request from '../request'
 export const getCompanies = (params: IQuery) =>
   request.get<IQuery, ITable<ICompanyItem>>('/api/v1/companies', { params })
 
+export const getCompaniesOptions = (params: IFilter) =>
+  request.get<IFilter, IFilterItem[]>('/api/v1/companies/options', { params })
+
 export const getCompany = (params: IParam) =>
   request.get<IParam, ICompanyItem>('/api/v1/companies/:id', { params })
 

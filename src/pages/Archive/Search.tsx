@@ -97,7 +97,7 @@ export default () => {
       content: <Text type="danger">{name}</Text>,
       okText: '确定',
       cancelText: '取消',
-      okButtonProps: { loading: loadingImport },
+      okButtonProps: { loading: loadingDelete },
       onOk: () => {
         return runDelete({ id })
       }
@@ -135,7 +135,7 @@ export default () => {
           <Button type="link" onClick={() => handleAddOrEdit(record)}>
             编辑
           </Button>
-          <Button type="link" onClick={() => handleDelete(record)} loading={loadingDelete}>
+          <Button type="link" onClick={() => handleDelete(record)}>
             删除
           </Button>
         </Space>
@@ -159,7 +159,7 @@ export default () => {
       setFileList(fileList)
 
       Modal.confirm({
-        title: '确定要导入吗?',
+        title: '确定导入?',
         content: (
           <Flex>
             <Text type="success">{fileList[0]?.name}</Text>
@@ -167,6 +167,7 @@ export default () => {
         ),
         okText: '确定',
         cancelText: '取消',
+        okButtonProps: { loading: loadingImport },
         onOk: () => {
           const formData = new FormData()
           formData.append('file', fileList[0].originFileObj as RcFile)

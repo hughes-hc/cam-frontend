@@ -16,7 +16,7 @@ interface IUploadFile extends UploadFile {
   archive_type?: number
 }
 
-export default () => {
+const ArchiveUpload = () => {
   const [fileList, setFileList] = useState<IUploadFile[]>([])
   const [percent, setPercent] = useState(0)
 
@@ -188,3 +188,7 @@ export default () => {
     </div>
   )
 }
+
+const ArchiveUploadModal = () => {}
+
+export default ArchiveUpload

@@ -1,5 +1,6 @@
 import { validateEmail, validateNoSpaces, validatePhone } from '@/common/validate'
 import { addCompany, updateCompany } from '@/services/company'
+import { checkUser } from '@/services/user'
 import { useRequest } from 'ahooks'
 import { Form, Input, Modal, Switch, message } from 'antd'
 
@@ -45,13 +46,23 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
       .then(values => (isEdit ? runEdit({ id: initialData?.id, ...values }) : runAdd(values)))
   }
 
+  const validateUserName = (_rule: any, value: string) => {
+    return checkUser({ username: value }).then(exist => {
+      if (exist) {
+        return Promise.reject(new Error('用户名已存在'))
+      } else {
+        return Promise.resolve()
+      }
+    })
+  }
+
   const validateConfirmPassword = (_rule: any, value: string) => {
     if (!value) {
-      Promise.reject('请再次输入密码以确认')
+      return Promise.reject(new Error('请再次输入密码以确认'))
     } else if (value !== form.getFieldValue('password')) {
-      Promise.reject('两次密码不一致，请重新输入')
+      return Promise.reject(new Error('两次密码不一致，请重新输入'))
     } else {
-      Promise.resolve()
+      return Promise.resolve()
     }
   }
 
@@ -68,11 +79,12 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
       }}
       confirmLoading={loadingAdd || loadingEdit}
     >
-      <Form<IUserForm> form={form} labelCol={{ span: 7 }} wrapperCol={{ offset: 1, span: 16 }}>
+      <Form<IUserForm> form={form} labelCol={{ span: 4 }} wrapperCol={{ offset: 1, span: 19 }}>
         <Form.Item
           name="username"
           label="用户名"
-          rules={[{ required: true }, { max: 50 }, { validator: validateNoSpaces }]}
+          validateTrigger="onBlur"
+          rules={[{ required: true }, { max: 20 }, { validator: validateUserName }]}
         >
           <Input placeholder="请输入用户名" />
         </Form.Item>
@@ -90,18 +102,10 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
           rules={[{ validator: validateConfirmPassword }]}
           validateTrigger="onBlur"
         >
-          <Input.Password
-            placeholder="请再次输入密码"
-            autoComplete="new-password"
-            style={{ boxShadow: 'none' }}
-          />
+          <Input.Password placeholder="请再次输入密码" autoComplete="new-password" />
         </Form.Item>
-        <Form.Item
-          name="role"
-          label="角色"
-          rules={[{ required: true }, { validator: validateNoSpaces }]}
-        >
-          <span>{initialData?.role}</span>
+        <Form.Item name="role" label="角色">
+          <span>{initialData?.role || '内网用户'}</span>
         </Form.Item>
         <Form.Item name="email" label="邮箱" rules={[{ validator: validateEmail }]}>
           <Input placeholder="请输入邮箱" />

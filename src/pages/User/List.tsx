@@ -21,7 +21,7 @@ export default () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
   const { page, page_size, pattern, pattern_by, order } = query
   const [visible, { toggle: toggleVisible }] = useToggle()
-  const [initialData, setInitialData] = useState<ICompanyForm | undefined>()
+  const [initialData, setInitialData] = useState<IUserForm | undefined>()
 
   const {
     data,

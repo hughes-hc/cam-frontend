@@ -21,3 +21,5 @@ interface IUserForm {
   phone: string
   status: number
 }
+
+type IUserName = Pick<IUser, 'username'>

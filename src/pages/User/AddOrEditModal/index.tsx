@@ -1,6 +1,6 @@
 import { validateEmail, validateNoSpaces, validatePhone } from '@/common/validate'
 import { addCompany, updateCompany } from '@/services/company'
-import { checkUser } from '@/services/user'
+import { addUser, checkUser, updateUser } from '@/services/user'
 import { useRequest } from 'ahooks'
 import { Form, Input, Modal, Switch, message } from 'antd'
 
@@ -20,7 +20,7 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
 
   isEdit && form.setFieldsValue({ ...initialData })
 
-  const { loading: loadingAdd, run: runAdd } = useRequest(addCompany, {
+  const { loading: loadingAdd, run: runAdd } = useRequest(addUser, {
     manual: true,
     onSuccess: () => {
       message.success('新增成功')
@@ -30,7 +30,7 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
     }
   })
 
-  const { loading: loadingEdit, run: runEdit } = useRequest(updateCompany, {
+  const { loading: loadingEdit, run: runEdit } = useRequest(updateUser, {
     manual: true,
     onSuccess: () => {
       message.success('编辑成功')

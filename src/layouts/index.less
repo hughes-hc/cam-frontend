@@ -1,21 +1,19 @@
 .root {
-  height: calc(100vh);
-  // padding: 20px;
-  margin: auto;
+  position: relative;
+  min-height: calc(100vh);
 }
 
 .header {
-  position: relative;
+  position: fixed;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   width: 100%;
   height: max-content;
   padding: 0 16px;
-  margin-bottom: 30px;
   font-size: 16px;
   color: #fff;
   background-color: #1677ff;
-  // border-radius: 8px;
   box-shadow: 0.2s, border-color 0.2s;
 
   .logo {
@@ -49,6 +47,10 @@
 
 .content {
   width: 1000px;
+  height: fit-content;
+  padding: 20px;
   margin: auto;
-  // padding: 20px;padding
+  margin: 20px auto;
+  margin-top: 84px;
+  background: #fff;
 }

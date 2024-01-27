@@ -1,25 +1,17 @@
-interface IUser {
-  id: number
+interface IUserForm {
   username: string
   password: string
-  is_default: boolean
-  role: User_Role
+  role: string
   email: string
   phone: string
-  status: number
+  status: string
+}
+
+interface IUser extends IUserForm {
+  id: number
+  is_default: boolean
   last_login_time: Date
   created_time: Date
   updated_time: Date
 }
-
-interface IUserForm {
-  id?: number
-  username: string
-  password: string
-  role: User_Role
-  email: string
-  phone: string
-  status: number
-}
-
 type IUserName = Pick<IUser, 'username'>

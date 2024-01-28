@@ -41,6 +41,7 @@ export default () => {
         ]}
       />
       <ArchiveList
+        mode="detail"
         companyId={companyId}
         header={
           <Flex justify="space-between" align="center">

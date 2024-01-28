@@ -33,7 +33,7 @@ export default () => {
         placeholder="请输入企业名称"
       />
       {name ? (
-        <ArchiveList companyId={id} />
+        <ArchiveList companyId={id} mode="search" />
       ) : (
         <Flex justify="center" align="center" style={{ marginTop: 100 }}>
           <Image src={searchPng} preview={false} />

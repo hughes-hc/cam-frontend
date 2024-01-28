@@ -37,3 +37,5 @@ export const downloadFile = (params: IDownloadParams, callback?: Function) => {
     }
   })
 }
+
+export const deleteArchive = (params: IParam) => request.delete('/api/v1/archives/:id', { params })

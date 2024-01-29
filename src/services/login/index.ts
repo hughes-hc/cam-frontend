@@ -8,3 +8,5 @@ export const getCaptcha = () => {
 export const login = (params: ILoginParam) => {
   return request.post<ILoginParam, IUerInfo>('/api/v1/auth/login', params)
 }
+
+export const getUserInfo = () => request.get<undefined, IUser>('/api/v1/user')

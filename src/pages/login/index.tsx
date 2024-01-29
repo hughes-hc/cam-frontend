@@ -21,7 +21,7 @@ export default () => {
     manual: true,
     onSuccess(res) {
       localStorage.setItem(CAM_TOKEN_KEY, `Bearer ${res.access_token}`)
-      history.push('/')
+      history.push('/company')
     },
     onError(e) {
       console.log(e)

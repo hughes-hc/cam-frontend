@@ -9,7 +9,7 @@ export interface IRoute {
 }
 
 const routes: IRoute[] = [
-  { title: '首页', path: '/', component: 'Home', noShowInMenu: true },
+  // { title: '首页', path: '/', component: 'Home', noShowInMenu: true },
   { title: '登录', path: '/login', component: 'Login', noShowInMenu: true, layout: false },
   { title: '企业信息', path: '/company', component: 'Company', icon: 'search' },
   {

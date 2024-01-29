@@ -7,6 +7,8 @@ import { useEffect } from 'react'
 import { Icon, Link, Outlet, history, useLocation } from 'umi'
 import styles from './index.less'
 import zhCN from 'antd/locale/zh_CN'
+import { useRequest } from 'ahooks'
+import { getUserInfo } from '@/services/login'
 
 const { Title } = Typography
 const { Header, Content } = Layout
@@ -43,6 +45,8 @@ export default () => {
     }
   }, [])
 
+  const { data: userInfo } = useRequest(getUserInfo)
+
   const handleLogout = () => {
     localStorage.removeItem(CAM_TOKEN_KEY)
     history.push('/login')
@@ -64,7 +68,7 @@ export default () => {
         <Layout className={styles.root}>
           <Header className={styles.header}>
             <Flex gap={40} className={styles.left}>
-              <Link to="/" className={styles.logo}>
+              <Link to="/company" className={styles.logo}>
                 <Icon icon="local:common/logo" width="50px" height="50px" />
                 <Title>企业档案管理系统</Title>
               </Link>
@@ -72,7 +76,7 @@ export default () => {
             </Flex>
 
             <Space size="large">
-              admin
+              {userInfo?.username}
               <Tooltip title="退出登录" placement="bottomLeft">
                 <LogoutOutlined className={styles.logout} size={25} onClick={handleLogout} />
               </Tooltip>

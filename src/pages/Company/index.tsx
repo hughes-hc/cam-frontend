@@ -55,7 +55,7 @@ export default () => {
   const { loading: loadingImport, run: runBatchImport } = useRequest(companyBatchImport, {
     manual: true,
     onSuccess: res => {
-      message.success(res)
+      message.success(res || '导入成功')
       refreshTable({ page: 1 })
     }
   })

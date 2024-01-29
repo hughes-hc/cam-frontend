@@ -1,13 +1,13 @@
+import { archiveUpload } from '@/services/archive'
+import { getCompaniesOptions } from '@/services/company'
 import { FilePdfTwoTone, InboxOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import type { UploadFile, UploadProps } from 'antd'
-import { Alert, Button, Empty, Flex, Select, Space, Upload, message } from 'antd'
+import { Alert, Button, Empty, Flex, Modal, Select, Upload, message } from 'antd'
+import { RcFile } from 'antd/es/upload'
+import { map } from 'lodash'
 import { useState } from 'react'
 import styles from './index.less'
-import { useRequest } from 'ahooks'
-import { archiveUpload } from '@/services/archive'
-import { RcFile } from 'antd/es/upload'
-import { getCompaniesOptions } from '@/services/company'
-import { map } from 'lodash'
 
 const { Dragger } = Upload
 
@@ -24,8 +24,6 @@ const ArchiveUpload = () => {
     () => {
       const formData = new FormData()
       fileList.forEach(file => {
-        console.log(file)
-
         formData.append('files', file.originFileObj as RcFile)
         formData.append('companyId', file.company?.value as string)
         formData.append('archiveType', String(file.archive_type) as string)
@@ -34,9 +32,19 @@ const ArchiveUpload = () => {
     },
     {
       manual: true,
-      onSuccess: () => {
-        message.success('导入成功')
-        setFileList([])
+      onSuccess: result => {
+        Modal.success({
+          title: '导入成功',
+          content: '即将跳转档案归集页面'
+        })
+        setTimeout(() => {
+          Modal.destroyAll()
+          setFileList([])
+          map(result, (_, company_id) => {
+            console.log(company_id)
+            window.open(`/company/detail/${company_id}`, '_blank')
+          })
+        }, 1000)
       }
     }
   )
@@ -53,6 +61,8 @@ const ArchiveUpload = () => {
 
     if (fileList.some(file => !file.company)) {
       return message.warning('请先选择企业名称')
+    } else if (fileList.some(file => !file.archive_type)) {
+      return message.warning('请先选择归档类型')
     }
 
     message.info('开始导入文件...')
@@ -119,7 +129,19 @@ const ArchiveUpload = () => {
                 })
               )
             }}
-            notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />}
+            notFoundContent={
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <Flex vertical>
+                    未查询到相关企业信息
+                    <Button type="link" onClick={() => window.open('/company', '_blank')}>
+                      前往新增
+                    </Button>
+                  </Flex>
+                }
+              />
+            }
             options={map(companies, ({ id, name }) => ({
               value: id,
               label: name
@@ -189,6 +211,8 @@ const ArchiveUpload = () => {
   )
 }
 
-const ArchiveUploadModal = () => {}
+const ArchiveUploadModal = () => {
+  const [visible, setVisible] = useState(false)
+}
 
 export default ArchiveUpload

@@ -40,16 +40,11 @@ export default () => {
           }
         ]}
       />
-      <ArchiveList
-        mode="detail"
-        companyId={companyId}
-        header={
-          <Flex justify="space-between" align="center">
-            <h3>档案列表</h3>
-            <Button type="primary">新增档案</Button>
-          </Flex>
-        }
-      />
+      <Flex justify="space-between" align="center" style={{ marginTop: 20 }}>
+        <h3>档案列表</h3>
+        <Button type="primary">新增档案</Button>
+      </Flex>
+      <ArchiveList mode="detail" companyId={companyId} />
     </Flex>
   )
 }

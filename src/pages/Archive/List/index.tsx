@@ -4,6 +4,7 @@ import { useRequest } from 'ahooks'
 import { Badge, Button, Empty, Flex, List, ListProps, Modal, message } from 'antd'
 import { useState } from 'react'
 import { ArchiveModalViewer } from '../Viewer'
+import { Archive_Type_Color_Map, ArchiveTypeColorMapType } from '@/common/constant'
 
 interface IProps extends ListProps<IArchive> {
   mode: 'search' | 'detail'
@@ -53,7 +54,11 @@ export default ({ companyId, mode, ...restProps }: IProps) => {
           dataSource={archiveInfo}
           split={false}
           renderItem={(item, index) => (
-            <Badge.Ribbon text={item.volume_type} color="volcano" key={index}>
+            <Badge.Ribbon
+              text={item.volume_type}
+              color={Archive_Type_Color_Map[item.volume_type as ArchiveTypeColorMapType]}
+              key={index}
+            >
               <List.Item
                 onClick={() => setActiveId(item.id)}
                 style={{ background: '#fff', marginBottom: 20, borderRadius: 8, cursor: 'pointer' }}

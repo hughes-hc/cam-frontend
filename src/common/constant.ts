@@ -34,3 +34,12 @@ export const Audit_Resource_Map = {
   archive: '档案'
 }
 export type AuditResourceType = keyof typeof Audit_Resource_Map
+
+export enum Archive_Type_Color_Map {
+  设立 = '#3CB371',
+  变更 = '#1E90FF',
+  出质 = '#FFD700',
+  注销 = '#FF6347',
+  其它 = '#9370DB'
+}
+export type ArchiveTypeColorMapType = keyof typeof Archive_Type_Color_Map

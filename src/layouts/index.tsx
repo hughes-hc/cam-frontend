@@ -21,24 +21,15 @@ const filterRoutes = (routes: IRoute[]): IRoute[] =>
 
 const renderRoutes = (routes: IRoute[]): MenuProps['items'] =>
   chain(routes)
-    .map(route =>
-      route.routes
-        ? {
-            key: route.path,
-            label: route.title,
-            icon: <Icon icon={`local:menu/${route.icon}`} width="20px" height="20px" />,
-            children: renderRoutes(route.routes)
-          }
-        : {
-            key: route.path,
-            label: <Link to={route.path}>{route.title}</Link>,
-            icon: <Icon icon={`local:menu/${route.icon}`} width="20px" height="20px" />
-          }
-    )
+    .map(route => ({
+      key: route.path,
+      label: <Link to={route.path}>{route.title}</Link>,
+      icon: <Icon icon={`local:menu/${route.icon}`} width="20px" height="20px" />,
+      children: route.routes ? renderRoutes(route.routes) : null
+    }))
     .value()
 
 export default () => {
-  const { pathname } = useLocation()
   useEffect(() => {
     if (!localStorage.getItem(CAM_TOKEN_KEY)) {
       history.push('/login')
@@ -51,6 +42,7 @@ export default () => {
     localStorage.removeItem(CAM_TOKEN_KEY)
     history.push('/login')
   }
+  console.log(renderRoutes(filterRoutes(routes)))
 
   return (
     <ConfigProvider
@@ -58,37 +50,37 @@ export default () => {
       theme={{
         components: {
           Menu: {
+            darkItemColor: '#fff',
             darkItemBg: '#2c7cf6',
-            itemSelectedBg: '#e6f4ff'
+            darkItemHoverColor: 'rgba(255,255,255,0.8)',
+            darkSubMenuItemBg: '#fff',
+            darkItemSelectedBg: '#4096ff',
+            darkItemSelectedColor: '#fff'
           }
         }
       }}
     >
-      {pathname !== '/login' ? (
-        <Layout className={styles.root}>
-          <Header className={styles.header}>
-            <Flex gap={40} className={styles.left}>
-              <Link to="/company" className={styles.logo}>
-                <Icon icon="local:common/logo" width="50px" height="50px" />
-                <Title>企业档案管理系统</Title>
-              </Link>
-              <Menu theme="dark" mode="horizontal" items={renderRoutes(filterRoutes(routes))} />
-            </Flex>
+      <Layout className={styles.root}>
+        <Header className={styles.header}>
+          <Flex gap={40} className={styles.left}>
+            <Link to="/company" className={styles.logo}>
+              <Icon icon="local:common/logo" width="40px" height="40px" style={{ lineHeight: 1 }} />
+              <Title>企业档案管理 · CAM</Title>
+            </Link>
+            <Menu theme="dark" mode="horizontal" items={renderRoutes(filterRoutes(routes))} />
+          </Flex>
 
-            <Space size="large">
-              {userInfo?.username}
-              <Tooltip title="退出登录" placement="bottomLeft">
-                <LogoutOutlined className={styles.logout} size={25} onClick={handleLogout} />
-              </Tooltip>
-            </Space>
-          </Header>
-          <Content className={styles.content}>
-            <Outlet />
-          </Content>
-        </Layout>
-      ) : (
-        <Outlet />
-      )}
+          <Space size="large">
+            {userInfo?.username}
+            <Tooltip title="退出登录" placement="bottomLeft">
+              <LogoutOutlined className={styles.logout} size={25} onClick={handleLogout} />
+            </Tooltip>
+          </Space>
+        </Header>
+        <Content className={styles.content}>
+          <Outlet />
+        </Content>
+      </Layout>
     </ConfigProvider>
   )
 }

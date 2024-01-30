@@ -8,6 +8,7 @@ import { RcFile } from 'antd/es/upload'
 import { map } from 'lodash'
 import { useState } from 'react'
 import styles from './index.less'
+import CAMTitle from '@/components/CAMTitle'
 
 const { Dragger } = Upload
 
@@ -16,7 +17,15 @@ interface IUploadFile extends UploadFile {
   archive_type?: number
 }
 
-const ArchiveUpload = () => {
+interface IProps {
+  isModal: boolean
+  companyId?: string
+  width?: number
+  afterSubmit?: () => void
+}
+
+const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps) => {
+  const [modalVisible, setModalVisible] = useState(false)
   const [fileList, setFileList] = useState<IUploadFile[]>([])
   const [percent, setPercent] = useState(0)
 
@@ -25,7 +34,10 @@ const ArchiveUpload = () => {
       const formData = new FormData()
       fileList.forEach(file => {
         formData.append('files', file.originFileObj as RcFile)
-        formData.append('companyId', file.company?.value as string)
+        formData.append(
+          'companyId',
+          isModal ? (companyId as string) : (file.company?.value as string)
+        )
         formData.append('archiveType', String(file.archive_type) as string)
       })
       return archiveUpload(formData, setPercent)
@@ -33,18 +45,24 @@ const ArchiveUpload = () => {
     {
       manual: true,
       onSuccess: result => {
-        Modal.success({
-          title: '导入成功',
-          content: '即将跳转档案归集页面'
-        })
-        setTimeout(() => {
-          Modal.destroyAll()
-          setFileList([])
-          map(result, (_, company_id) => {
-            console.log(company_id)
-            window.open(`/company/detail/${company_id}`, '_blank')
+        if (isModal) {
+          setModalVisible(false)
+          message.success('导入成功')
+          afterSubmit?.()
+        } else {
+          Modal.success({
+            title: '导入成功',
+            content: '即将跳转档案归集页面'
           })
-        }, 1000)
+          setTimeout(() => {
+            Modal.destroyAll()
+            setFileList([])
+            map(result, (_, company_id) => {
+              console.log(company_id)
+              window.open(`/company/detail/${company_id}`, '_blank')
+            })
+          }, 1000)
+        }
       }
     }
   )
@@ -59,7 +77,7 @@ const ArchiveUpload = () => {
       return message.warning('请先选择上传文件')
     }
 
-    if (fileList.some(file => !file.company)) {
+    if (!isModal && fileList.some(file => !file.company)) {
       return message.warning('请先选择企业名称')
     } else if (fileList.some(file => !file.archive_type)) {
       return message.warning('请先选择归档类型')
@@ -103,52 +121,53 @@ const ArchiveUpload = () => {
           gap={20}
           style={{ width: '100%', marginTop: 20 }}
         >
-          <div className={styles.filItem}>{originNode}</div>
-          <Select
-            size="large"
-            style={{ width: 200 }}
-            allowClear
-            showSearch
-            labelInValue
-            value={company}
-            placeholder={'请输入企业名称'}
-            defaultActiveFirstOption={false}
-            suffixIcon={null}
-            filterOption={false}
-            onSearch={val => handleSearch({ name: val })}
-            onChange={value => {
-              setFileList(
-                fileList.map(item => {
-                  if (item.uid === uid) {
-                    return {
-                      ...item,
-                      company: value
+          {!isModal && (
+            <Select
+              size="large"
+              style={{ width: 200 }}
+              allowClear
+              showSearch
+              labelInValue
+              value={company}
+              placeholder={'请输入企业名称'}
+              defaultActiveFirstOption={false}
+              suffixIcon={null}
+              filterOption={false}
+              onSearch={val => handleSearch({ name: val })}
+              onChange={value => {
+                setFileList(
+                  fileList.map(item => {
+                    if (item.uid === uid) {
+                      return {
+                        ...item,
+                        company: value
+                      }
                     }
+                    return item
+                  })
+                )
+              }}
+              notFoundContent={
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={
+                    <Flex vertical>
+                      未查询到相关企业信息
+                      <Button type="link" onClick={() => window.open('/company', '_blank')}>
+                        前往新增
+                      </Button>
+                    </Flex>
                   }
-                  return item
-                })
-              )
-            }}
-            notFoundContent={
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={
-                  <Flex vertical>
-                    未查询到相关企业信息
-                    <Button type="link" onClick={() => window.open('/company', '_blank')}>
-                      前往新增
-                    </Button>
-                  </Flex>
-                }
-              />
-            }
-            options={map(companies, ({ id, name }) => ({
-              value: id,
-              label: name
-            }))}
-          />
+                />
+              }
+              options={map(companies, ({ id, name }) => ({
+                value: id,
+                label: name
+              }))}
+            />
+          )}
           <Select
-            placeholder="请选择"
+            placeholder="类型"
             size="large"
             style={{ width: 100 }}
             options={[
@@ -173,46 +192,82 @@ const ArchiveUpload = () => {
               )
             }}
           />
+          <div className={styles.filItem}>{originNode}</div>
         </Flex>
       )
     }
   }
 
-  return (
-    <div className={styles.importWrapper}>
-      <Flex vertical gap={40} style={{ width: 650 }}>
-        <Alert
-          message="上传须知"
-          description={
-            <>
-              <div>1. 文件格式: 仅支持PDF格式文件上传；</div>
-              <div>2. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不超过50MB；</div>
-            </>
-          }
-          type="info"
-          showIcon
-        />
-        <Dragger {...uploadProps} className={styles.upload} disabled={loading}>
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">点击上传</p>
-        </Dragger>
-        <Button
-          type="primary"
-          loading={loading}
-          onClick={handleSubmit}
-          className={styles.submitBtn}
-        >
-          {loading ? `导入中 ${percent}%` : '导入档案'}
-        </Button>
-      </Flex>
-    </div>
+  const commonNode = (
+    <>
+      <Alert
+        message="上传须知"
+        description={
+          <>
+            <div>1. 文件格式: 仅支持PDF格式文件上传；</div>
+            <div>2. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不超过50MB；</div>
+            <div>3. 必填说明：{isModal ? '' : '企业名称和'}归档类型；</div>
+          </>
+        }
+        type="info"
+        showIcon
+      />
+      <Dragger {...uploadProps} className={styles.upload} disabled={loading}>
+        <p className="ant-upload-drag-icon">
+          <InboxOutlined />
+        </p>
+        <p className="ant-upload-text">点击上传</p>
+      </Dragger>
+    </>
   )
-}
 
-const ArchiveUploadModal = () => {
-  const [visible, setVisible] = useState(false)
+  if (isModal) {
+    return (
+      <>
+        {modalVisible && (
+          <Modal
+            open={modalVisible}
+            title="新增档案"
+            onOk={handleSubmit}
+            confirmLoading={loading}
+            okText={loading ? `导入中 ${percent}%` : '确定'}
+            onCancel={() => setModalVisible(false)}
+          >
+            <Flex vertical gap={40} className={styles.importWrapper}>
+              {commonNode}
+            </Flex>
+          </Modal>
+        )}
+        <Button type="primary" onClick={() => setModalVisible(true)}>
+          新增档案
+        </Button>
+      </>
+    )
+  } else {
+    return (
+      <Flex vertical>
+        <CAMTitle title="档案导入" />
+        <Flex
+          vertical
+          gap={40}
+          justify="center"
+          align="center"
+          style={{ width, marginTop: 'calc(10%)' }}
+          className={styles.importWrapper}
+        >
+          {commonNode}
+          <Button
+            type="primary"
+            loading={loading}
+            onClick={handleSubmit}
+            className={styles.submitBtn}
+          >
+            {loading ? `导入中 ${percent}%` : '导入档案'}
+          </Button>
+        </Flex>
+      </Flex>
+    )
+  }
 }
 
 export default ArchiveUpload

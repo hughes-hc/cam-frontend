@@ -1,8 +1,10 @@
 import CAMTitle from '@/components/CAMTitle'
 import ArchiveList from '@/pages/Archive/List'
+import ArchiveUpload from '@/pages/Archive/Upload'
+import { getArchivesList } from '@/services/archive'
 import { getCompany } from '@/services/company'
 import { useRequest } from 'ahooks'
-import { Button, Descriptions, Flex } from 'antd'
+import { Descriptions, Flex } from 'antd'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import { useParams } from 'umi'
@@ -42,7 +44,12 @@ export default () => {
       />
       <Flex justify="space-between" align="center" style={{ marginTop: 20 }}>
         <h3>档案列表</h3>
-        <Button type="primary">新增档案</Button>
+        <ArchiveUpload
+          isModal
+          companyId={String(companyId)}
+          afterSubmit={() => window.location.reload()}
+          width={650}
+        />
       </Flex>
       <ArchiveList mode="detail" companyId={companyId} />
     </Flex>

@@ -1,14 +1,14 @@
 import { CAM_TOKEN_KEY } from '@/common/constant'
+import { getUserInfo } from '@/services/login'
 import { LogoutOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { ConfigProvider, Flex, Layout, Menu, MenuProps, Space, Tooltip, Typography } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
 import routes, { IRoute } from 'config/routes'
 import { chain } from 'lodash'
 import { useEffect } from 'react'
-import { Icon, Link, Outlet, history, useLocation } from 'umi'
+import { Icon, Link, Outlet, history } from 'umi'
 import styles from './index.less'
-import zhCN from 'antd/locale/zh_CN'
-import { useRequest } from 'ahooks'
-import { getUserInfo } from '@/services/login'
 
 const { Title } = Typography
 const { Header, Content } = Layout
@@ -42,7 +42,6 @@ export default () => {
     localStorage.removeItem(CAM_TOKEN_KEY)
     history.push('/login')
   }
-  console.log(renderRoutes(filterRoutes(routes)))
 
   return (
     <ConfigProvider
@@ -65,7 +64,7 @@ export default () => {
           <Flex gap={40} className={styles.left}>
             <Link to="/company" className={styles.logo}>
               <Icon icon="local:common/logo" width="40px" height="40px" style={{ lineHeight: 1 }} />
-              <Title>企业档案管理 · CAM</Title>
+              <Title>企业登记档案 · CAM</Title>
             </Link>
             <Menu theme="dark" mode="horizontal" items={renderRoutes(filterRoutes(routes))} />
           </Flex>

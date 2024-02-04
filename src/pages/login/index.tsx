@@ -32,15 +32,15 @@ export default () => {
   return (
     <div className={styles.login}>
       <Form
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
+        labelCol={{ span: 5 }}
+        wrapperCol={{ span: 18 }}
         style={{ maxWidth: 450 }}
         initialValues={{ remember: true }}
         onFinish={handleFinish}
         autoComplete="off"
         className={styles.form}
       >
-        <h1 className={styles.title}>企业档案管理系统</h1>
+        <h1 className={styles.title}>德兴市企业登记档案管理平台</h1>
         <Form.Item<FieldType>
           label="用户名"
           name="username"
@@ -79,7 +79,7 @@ export default () => {
           </Row>
         </Form.Item>
 
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+        <Form.Item wrapperCol={{ offset: 5, span: 18 }}>
           <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%' }}>
             登录
           </Button>

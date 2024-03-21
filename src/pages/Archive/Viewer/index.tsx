@@ -1,7 +1,9 @@
 import { getArchiveFile } from '@/services/archive'
 import {
+  BorderOutlined,
   CaretLeftFilled,
   CaretRightFilled,
+  CheckSquareOutlined,
   FileImageOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
@@ -31,12 +33,22 @@ interface IProps {
 
 const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) => {
   const [numPages, setNumPages] = useState(0)
-  const [isExpanded, { toggle: toggleExpand }] = useToggle(false)
+  const [isExpanded, { toggle: toggleExpand, set: setExpand }] = useToggle(false)
   const [navMode, setNavMode] = useState<'thumbnail' | 'outline'>('thumbnail')
+  const [isChecking, { toggle: toggleCheck }] = useToggle(false)
+  const [selectedPages, setSelectedPages] = useState<number[]>([])
 
   useEffect(() => {
     setNumPages(0)
   }, [file])
+
+  useEffect(() => {
+    if (!isChecking) {
+      setSelectedPages([])
+    } else {
+      setExpand(true)
+    }
+  }, [isChecking])
 
   const onDocumentLoadSuccess = ({ numPages }: DocumentCallback) => {
     setNumPages(numPages)
@@ -44,21 +56,41 @@ const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) =
 
   return (
     <div className={styles.viewer}>
-      <Document file={file} onLoadSuccess={onDocumentLoadSuccess} className={styles.document}>
+      <Document
+        file={file}
+        onLoadSuccess={onDocumentLoadSuccess}
+        className={styles.document}
+        onItemClick={({ pageNumber }) => {
+          if (isChecking) {
+            if (selectedPages.includes(pageNumber)) {
+              setSelectedPages(selectedPages.filter(p => p !== pageNumber))
+            } else {
+              setSelectedPages([...selectedPages, pageNumber])
+            }
+          }
+        }}
+      >
         <Flex justify="space-between" align="center" className={styles.toolbar}>
           <Space className={styles.left}>
             {isExpanded ? (
-              <MenuFoldOutlined onClick={toggleExpand} />
+              <MenuFoldOutlined onClick={toggleExpand} title="收起目录" />
             ) : (
-              <MenuUnfoldOutlined onClick={toggleExpand} />
+              <MenuUnfoldOutlined onClick={toggleExpand} title="打开目录" />
             )}
             {filename}
           </Space>
-          {isFullScreen ? (
-            <FullscreenExitOutlined onClick={onFullScreen} />
-          ) : (
-            <FullscreenOutlined onClick={onFullScreen} />
-          )}
+          <Space className={styles.right} size="middle">
+            {isChecking ? (
+              <CheckSquareOutlined onClick={toggleCheck} title="关闭选择模式" />
+            ) : (
+              <BorderOutlined onClick={toggleCheck} title="开启选择模式" />
+            )}
+            {isFullScreen ? (
+              <FullscreenExitOutlined onClick={onFullScreen} title="取消全屏" />
+            ) : (
+              <FullscreenOutlined onClick={onFullScreen} title="全屏" />
+            )}
+          </Space>
         </Flex>
         {isExpanded && (
           <Flex className={styles.outlineContainer}>
@@ -66,10 +98,12 @@ const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) =
               <FileImageOutlined
                 className={classNames(styles.navMode, { [styles.active]: navMode === 'thumbnail' })}
                 onClick={() => setNavMode('thumbnail')}
+                title="缩略"
               />
               <OrderedListOutlined
                 className={classNames(styles.navMode, { [styles.active]: navMode === 'outline' })}
                 onClick={() => setNavMode('outline')}
+                title="目录"
               />
             </Flex>
             <Scrollbars style={{ width: 180, height: isFullScreen ? 'calc(100vh - 300px)' : 600 }}>
@@ -77,17 +111,35 @@ const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) =
                 <Flex vertical align="center" gap={10}>
                   {times(numPages, i => (
                     <div key={i} style={{ textAlign: 'center' }}>
-                      <Thumbnail pageNumber={i + 1} key={i} scale={0.2} />
+                      <Thumbnail
+                        pageNumber={i + 1}
+                        key={i}
+                        scale={0.2}
+                        className={classNames(styles.thumbnail, {
+                          [styles.selected]: selectedPages.includes(i + 1)
+                        })}
+                      />
                       {i + 1}
                     </div>
                   ))}
                 </Flex>
               )}
-              {navMode === 'outline' && <Outline className={styles.outline} />}
+              {navMode === 'outline' && (
+                <Outline
+                  className={classNames(styles.outline, {
+                    // [styles.selected]: selectedPages.includes(i + 1)
+                  })}
+                />
+              )}
             </Scrollbars>
           </Flex>
         )}
         <Scrollbars style={{ minWidth: 850, height: isFullScreen ? 'calc(100vh - 300px)' : 600 }}>
+          {isChecking && (
+            <div className={styles.checkingInfo}>
+              已进入选择模式，请在左侧目录或者缩略页面中选择指定章节或者页面，然后进行下载操作！
+            </div>
+          )}
           <Flex vertical align="center" gap={10} style={{ background: '#666' }}>
             {times(numPages, i => (
               <Page pageNumber={i + 1} key={i} />

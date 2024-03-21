@@ -102,14 +102,7 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
       const { fileList } = info
       console.log(fileList)
 
-      const files = fileList.filter(file => {
-        if (Number(file.size) > 50 * 1024 * 1024) {
-          message.warning('文件大小不能超过50MB')
-          return false
-        }
-        return true
-      })
-      setFileList(files)
+      setFileList(fileList)
     },
     iconRender: () => <FilePdfTwoTone style={{ fontSize: 20 }} />,
     itemRender(originNode, file: IUploadFile, fileList) {
@@ -205,7 +198,7 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
         description={
           <>
             <div>1. 文件格式: 仅支持PDF格式文件上传；</div>
-            <div>2. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不超过50MB；</div>
+            <div>2. 文件限制: 单次最多支持批量上传5个文件，单个文件大小不作限制；</div>
             <div>3. 必填说明：{isModal ? '' : '企业名称和'}归档类型；</div>
           </>
         }

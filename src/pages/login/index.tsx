@@ -4,14 +4,9 @@ import { useRequest } from 'ahooks'
 import { Button, Col, Form, Input, Row } from 'antd'
 import { history } from 'umi'
 import styles from './index.less'
+import { getCaptchaUrl } from '@/common/utils'
 
 type FieldType = ILoginParam
-
-const getCaptchaUrl = (svgStr: string) => {
-  const blob = new Blob([svgStr], { type: 'image/svg+xml' })
-  const url = URL.createObjectURL(blob)
-  return url
-}
 
 export default () => {
   const { data, run: handleRefreshCaptcha } = useRequest(getCaptcha)

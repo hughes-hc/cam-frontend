@@ -9,3 +9,9 @@ export const computeNextPage = (currentPage: number, currentItems: number, delet
   const remainingItems = currentItems - deleteCount
   return remainingItems > 0 ? currentPage : Math.max(1, currentPage - 1)
 }
+
+export const getCaptchaUrl = (svgStr: string) => {
+  const blob = new Blob([svgStr], { type: 'image/svg+xml' })
+  const url = URL.createObjectURL(blob)
+  return url
+}

@@ -15,3 +15,11 @@ interface IUser extends IUserForm {
   updated_time: Date
 }
 type IUserName = Pick<IUser, 'username'>
+
+interface IPasswordForm {
+  id: number
+  password: string // 当前登录用户密码
+  new_password: string
+  captcha_id: string
+  captcha_code: string
+}

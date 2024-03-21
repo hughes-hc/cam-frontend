@@ -14,6 +14,7 @@ import type { ColumnsType, TableProps } from 'antd/es/table'
 import { map } from 'lodash'
 import { useState } from 'react'
 import AddOrEditModal from './AddOrEditModal'
+import EditPasswordModal from './EditPasswordModal'
 
 const { Text } = Typography
 const { Search } = Input
@@ -29,8 +30,12 @@ const initialQuery: IQuery = {
 export default () => {
   const [query, setQuery] = useSetState<IQuery<Pick<IUser, 'role' | 'status'>>>(initialQuery)
   const { page, page_size, pattern, pattern_by, order, filters } = query
+
   const [visible, { toggle: toggleVisible }] = useToggle()
   const [initialData, setInitialData] = useState<IUserForm | undefined>()
+
+  const [editPwdVisible, { toggle: toggleEditPwdVisible }] = useToggle()
+  const [pwdData, setPwdData] = useState<IUser>({} as IUser)
 
   const {
     data,
@@ -60,6 +65,11 @@ export default () => {
   const handleAddOrEdit = (params?: IUser) => {
     setInitialData(params)
     toggleVisible()
+  }
+
+  const handleEditPwd = (params: IUser) => {
+    setPwdData(params)
+    toggleEditPwdVisible()
   }
 
   const handleDelete = ({ id, username }: IUser) => {
@@ -113,9 +123,9 @@ export default () => {
           <Button type="link" disabled={record.is_default} onClick={() => handleAddOrEdit(record)}>
             编辑
           </Button>
-          {/* <Button type="link" disabled={record.is_default} onClick={() => handleAddOrEdit(record)}>
+          <Button type="link" disabled={record.is_default} onClick={() => handleEditPwd(record)}>
             修改密码
-          </Button> */}
+          </Button>
           <Button
             type="link"
             onClick={() => handleDelete(record)}
@@ -177,6 +187,12 @@ export default () => {
         onChange={handleTableChange}
       />
       <AddOrEditModal {...{ visible, toggleVisible, initialData, setInitialData, refreshTable }} />
+      <EditPasswordModal
+        visible={editPwdVisible}
+        toggleVisible={toggleEditPwdVisible}
+        initialData={pwdData}
+        setInitialData={setPwdData}
+      />
     </div>
   )
 }

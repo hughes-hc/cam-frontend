@@ -12,8 +12,8 @@ type StatusType = keyof Pick<typeof ACCOUNT_STATUS_MAP, 'active' | 'disabled'>
 interface IProps {
   visible: boolean
   toggleVisible: () => void
-  initialData?: IUser
-  setInitialData: (data?: IUser) => void
+  initialData?: IUserForm
+  setInitialData: (data?: IUserForm) => void
   refreshTable: (query?: Partial<IQuery>) => void
 }
 

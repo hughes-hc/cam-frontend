@@ -5,6 +5,7 @@ import { Badge, Button, Empty, Flex, List, ListProps, Modal, message } from 'ant
 import { useState } from 'react'
 import { ArchiveModalViewer } from '../Viewer'
 import { Archive_Type_Color_Map, ArchiveTypeColorMapType } from '@/common/constant'
+import dayjs from 'dayjs'
 
 interface IProps extends ListProps<IArchive> {
   mode: 'search' | 'detail'
@@ -84,7 +85,7 @@ export default ({ companyId, mode, ...restProps }: IProps) => {
                   title={item.volume_part_num}
                   description={
                     <Flex justify={isSearch ? 'space-between' : 'flex-start'} gap={20}>
-                      <span>{item.upload_time}</span>
+                      <span>{dayjs(item.archive_date).format('YYYY-MM-DD')}</span>
                       <span>{item.pages} 页</span>
                     </Flex>
                   }

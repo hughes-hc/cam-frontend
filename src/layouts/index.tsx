@@ -9,6 +9,7 @@ import { chain } from 'lodash'
 import { useEffect } from 'react'
 import { Icon, Link, Outlet, history } from 'umi'
 import styles from './index.less'
+import 'dayjs/locale/zh-cn'
 
 const { Title } = Typography
 const { Header, Content } = Layout

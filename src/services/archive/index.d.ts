@@ -18,6 +18,8 @@ interface IArchive {
   volume_type: string
   pages: number
   upload_time: string
+  // 归档日期
+  archive_date: string
 }
 
 interface IDownloadParams {

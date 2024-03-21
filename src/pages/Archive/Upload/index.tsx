@@ -3,7 +3,7 @@ import { getCompaniesOptions } from '@/services/company'
 import { FilePdfTwoTone, InboxOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import type { UploadFile, UploadProps } from 'antd'
-import { Alert, Button, Empty, Flex, Modal, Select, Upload, message } from 'antd'
+import { Alert, Button, DatePicker, Empty, Flex, Modal, Select, Upload, message } from 'antd'
 import { RcFile } from 'antd/es/upload'
 import { map } from 'lodash'
 import { useState } from 'react'
@@ -14,7 +14,8 @@ const { Dragger } = Upload
 
 interface IUploadFile extends UploadFile {
   company?: { value: string; label: string }
-  archive_type?: number
+  archive_type?: string
+  archive_date?: string
 }
 
 interface IProps {
@@ -39,6 +40,7 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
           isModal ? (companyId as string) : (file.company?.value as string)
         )
         formData.append('archiveType', String(file.archive_type) as string)
+        formData.append('archiveDate', String(file.archive_date) as string)
       })
       return archiveUpload(formData, setPercent)
     },
@@ -81,6 +83,8 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
       return message.warning('请先选择企业名称')
     } else if (fileList.some(file => !file.archive_type)) {
       return message.warning('请先选择归档类型')
+    } else if (fileList.some(file => !file.archive_date)) {
+      return message.warning('请先选择归档日期')
     }
 
     message.info('开始导入文件...')
@@ -184,6 +188,22 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
                 })
               )
             }}
+          />
+          <DatePicker
+            placeholder="归档日期"
+            onChange={date =>
+              setFileList(
+                fileList.map(item => {
+                  if (item.uid === uid) {
+                    return {
+                      ...item,
+                      archive_date: date?.toISOString()
+                    }
+                  }
+                  return item
+                })
+              )
+            }
           />
           <div className={styles.filItem}>{originNode}</div>
         </Flex>

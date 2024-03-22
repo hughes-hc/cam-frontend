@@ -1,7 +1,10 @@
 .viewer {
+  width: 100%;
+
   .document {
     position: relative;
     display: flex;
+    width: 100%;
     padding-top: 40px;
     font-size: 20px;
 
@@ -26,16 +29,30 @@
     }
 
     .thumbnail {
-      &.selected {
-        :global {
-          .react-pdf__Thumbnail__page {
-            border: 2px solid #20a0ff;
+      display: none;
+
+      &.show {
+        display: flex;
+      }
+
+      .thumbnailItem {
+        &.selected {
+          :global {
+            .react-pdf__Thumbnail__page {
+              border: 2px solid #20a0ff;
+            }
           }
         }
       }
     }
 
     .outline {
+      display: none;
+
+      &.show {
+        display: block;
+      }
+
       > ul {
         padding: 0 10px;
         margin-top: 0;
@@ -94,4 +111,8 @@
       }
     }
   }
+}
+
+.loading {
+  width: 100%;
 }

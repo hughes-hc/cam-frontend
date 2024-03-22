@@ -23,6 +23,7 @@ declare global {
 
   interface IParam {
     id: number
+    selectedPages?: number[]
   }
 
   interface ICustomComProps<T> {

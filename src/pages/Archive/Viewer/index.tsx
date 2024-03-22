@@ -20,6 +20,7 @@ import { DocumentCallback, File } from 'node_modules/react-pdf/dist/esm/shared/t
 import { useEffect, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { Document, Outline, Page, Thumbnail, pdfjs } from 'react-pdf'
+
 import styles from './index.less'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
@@ -29,14 +30,32 @@ interface IProps {
   filename: string
   isFullScreen: boolean
   onFullScreen: () => void
+  selectedPages: number[]
+  setSelectedPages: (pages: number[]) => void
 }
 
-const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) => {
+const renderLoading = (progress?: number) => (
+  <div className={styles.loading}>
+    <Progress percent={progress} status="active" strokeColor={{ from: '#108ee9', to: '#87d068' }} />
+    <Skeleton active />
+  </div>
+)
+
+const ArchiveViewer = ({
+  file,
+  filename,
+  isFullScreen,
+  onFullScreen,
+  selectedPages,
+  setSelectedPages
+}: IProps) => {
   const [numPages, setNumPages] = useState(0)
   const [isExpanded, { toggle: toggleExpand, set: setExpand }] = useToggle(false)
   const [navMode, setNavMode] = useState<'thumbnail' | 'outline'>('thumbnail')
   const [isChecking, { toggle: toggleCheck }] = useToggle(false)
-  const [selectedPages, setSelectedPages] = useState<number[]>([])
+
+  const [documentLoaded, setDocumentLoaded] = useState(false)
+  const [outlineLoaded, setOutlineLoaded] = useState(false)
 
   useEffect(() => {
     setNumPages(0)
@@ -52,6 +71,7 @@ const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) =
 
   const onDocumentLoadSuccess = ({ numPages }: DocumentCallback) => {
     setNumPages(numPages)
+    setDocumentLoaded(true)
   }
 
   return (
@@ -60,15 +80,8 @@ const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) =
         file={file}
         onLoadSuccess={onDocumentLoadSuccess}
         className={styles.document}
-        onItemClick={({ pageNumber }) => {
-          if (isChecking) {
-            if (selectedPages.includes(pageNumber)) {
-              setSelectedPages(selectedPages.filter(p => p !== pageNumber))
-            } else {
-              setSelectedPages([...selectedPages, pageNumber])
-            }
-          }
-        }}
+        loading={renderLoading()}
+        noData=""
       >
         <Flex justify="space-between" align="center" className={styles.toolbar}>
           <Space className={styles.left}>
@@ -107,28 +120,46 @@ const ArchiveViewer = ({ file, filename, isFullScreen, onFullScreen }: IProps) =
               />
             </Flex>
             <Scrollbars style={{ width: 180, height: isFullScreen ? 'calc(100vh - 300px)' : 600 }}>
-              {navMode === 'thumbnail' && (
-                <Flex vertical align="center" gap={10}>
-                  {times(numPages, i => (
-                    <div key={i} style={{ textAlign: 'center' }}>
-                      <Thumbnail
-                        pageNumber={i + 1}
-                        key={i}
-                        scale={0.2}
-                        className={classNames(styles.thumbnail, {
-                          [styles.selected]: selectedPages.includes(i + 1)
-                        })}
-                      />
-                      {i + 1}
-                    </div>
-                  ))}
+              {outlineLoaded && (
+                <Flex
+                  vertical
+                  align="center"
+                  gap={10}
+                  className={classNames(styles.thumbnail, {
+                    [styles.show]: navMode === 'thumbnail'
+                  })}
+                >
+                  {times(numPages, i => {
+                    const pageNumber = i + 1
+                    return (
+                      <div key={i} style={{ textAlign: 'center' }}>
+                        <Thumbnail
+                          pageNumber={pageNumber}
+                          key={i}
+                          scale={0.2}
+                          className={classNames(styles.thumbnailItem, {
+                            [styles.selected]: selectedPages.includes(pageNumber)
+                          })}
+                          onClick={() => {
+                            if (isChecking) {
+                              if (selectedPages.includes(pageNumber)) {
+                                setSelectedPages(selectedPages.filter(p => p !== pageNumber))
+                              } else {
+                                setSelectedPages([...selectedPages, pageNumber])
+                              }
+                            }
+                          }}
+                        />
+                        {pageNumber}
+                      </div>
+                    )
+                  })}
                 </Flex>
               )}
-              {navMode === 'outline' && (
+              {documentLoaded && (
                 <Outline
-                  className={classNames(styles.outline, {
-                    // [styles.selected]: selectedPages.includes(i + 1)
-                  })}
+                  className={classNames(styles.outline, { [styles.show]: navMode === 'outline' })}
+                  onLoadSuccess={() => setOutlineLoaded(true)}
                 />
               )}
             </Scrollbars>
@@ -160,15 +191,30 @@ interface IModalProps {
 const ArchiveModalViewer = ({ list, activeId, setActiveId }: IModalProps) => {
   const [progress, setProgress] = useState(0)
   const [isFullScreen, { toggle: toggleFullScreen }] = useToggle(false)
+  const [selectedPages, setSelectedPages] = useState<number[]>([])
+  const [fileURL, setFileUrl] = useState<string>('')
 
   const activeArchive = find(list, item => item.id === activeId)
   const activeArchiveIndex = findIndex(list, item => item.id === activeId)
 
   const { data: archivePdf } = useRequest(() => getArchiveFile({ id: activeId }, setProgress), {
     ready: !!activeId,
-    refreshDeps: [activeId]
+    refreshDeps: [activeId],
+    onSuccess(res) {
+      const url = res ? URL.createObjectURL(res) : ''
+      setFileUrl(url)
+    }
   })
-  const fileURL = archivePdf ? URL.createObjectURL(archivePdf) : null
+
+  const { run: runGetPartialArchive } = useRequest(
+    () => getArchiveFile({ id: activeId, selectedPages }),
+    {
+      manual: true,
+      onSuccess(res) {
+        fileDownload(res, activeArchive?.volume_part_num + `[${selectedPages.join('、')}]` + '.pdf')
+      }
+    }
+  )
 
   const resetViewStatus = () => {
     setActiveId(0)
@@ -177,7 +223,11 @@ const ArchiveModalViewer = ({ list, activeId, setActiveId }: IModalProps) => {
 
   const handleDownload = () => {
     if (archivePdf) {
-      fileDownload(archivePdf, activeArchive?.volume_part_num + '.pdf')
+      if (selectedPages.length === 0) {
+        fileDownload(archivePdf, activeArchive?.volume_part_num + '.pdf')
+      } else {
+        runGetPartialArchive()
+      }
     }
   }
 
@@ -205,21 +255,14 @@ const ArchiveModalViewer = ({ list, activeId, setActiveId }: IModalProps) => {
       maskClosable={false}
     >
       <div className={styles.content}>
-        {progress < 100 && (
-          <>
-            <Progress
-              percent={progress}
-              status="active"
-              strokeColor={{ from: '#108ee9', to: '#87d068' }}
-            />
-            <Skeleton active />
-          </>
-        )}
+        {progress < 100 && renderLoading(progress)}
         <ArchiveViewer
           file={fileURL}
           filename={activeArchive?.volume_part_num || ''}
           isFullScreen={isFullScreen}
           onFullScreen={toggleFullScreen}
+          selectedPages={selectedPages}
+          setSelectedPages={setSelectedPages}
         />
         {!isFullScreen && (
           <Flex justify="space-between" align="center" className={styles.extra}>

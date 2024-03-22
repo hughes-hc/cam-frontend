@@ -18,6 +18,7 @@
     "dayjs": "^1.11.10",
     "js-file-download": "^0.4.12",
     "lodash": "^4.17.21",
+    "pdf-lib": "^1.17.1",
     "qs": "^6.11.2",
     "react-custom-scrollbars": "^4.2.1",
     "react-pdf": "^7.7.0",

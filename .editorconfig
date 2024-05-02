@@ -1,0 +1,24 @@
+# http://editorconfig.org
+# 表示该文件适用于整个项目（包括子目录）
+root = true
+
+# 表示以下设置覆盖所有文件
+[*]
+
+# 设置换行符是lf（unix/linux风格）或者crlf（windows风格）
+end_of_line = lf
+
+# 设置utf-8编码
+charset = utf-8
+
+# 设置行首不留空白
+trim_trailing_whitespace = true
+
+# 设置文件的结尾留一个空行
+insert_final_newline = true
+
+# 设置缩进方式是空格
+indent_style = space
+
+# 设置缩进大小为2
+indent_size = 2

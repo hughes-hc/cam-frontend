@@ -17,6 +17,14 @@ const getFileInfo = (response: AxiosResponse) => {
   return { isFile, fileName }
 }
 
+const handleError = (errorData: any) => {
+  const { message = '接口出错，请联系管理员', error, statusCode } = errorData
+  notification.error({ message })
+  if (statusCode === 401) {
+    history.push('/login')
+  }
+}
+
 const request = axios.create()
 
 request.interceptors.request.use(config => {
@@ -50,12 +58,20 @@ request.interceptors.response.use(
     return response.data
   },
   err => {
-    const { message = '接口出错，请联系管理员', error, statusCode } = err.response.data
-    notification.error({ message })
-    if (statusCode === 401) {
-      history.push('/login')
+    // 某些接口返回的是二进制流，这里处理一下
+    const isBlobJson =
+      err.response.data instanceof Blob && err.response.data.type.toLowerCase().includes('json')
+
+    if (isBlobJson) {
+      const reader = new FileReader()
+      reader.readAsText(err.response.data, 'utf-8')
+      reader.onload = function (evt) {
+        const errorData = JSON.parse(evt.target?.result as string)
+        handleError(errorData)
+      }
+    } else {
+      handleError(err.response.data)
     }
-    throw new Error(error)
   }
 )
 

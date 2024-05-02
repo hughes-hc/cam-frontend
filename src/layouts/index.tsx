@@ -1,5 +1,5 @@
 import { CAM_TOKEN_KEY } from '@/common/constant'
-import { getUserInfo } from '@/services/login'
+import { getUserInfo, logout } from '@/services/login'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { ConfigProvider, Flex, Layout, Menu, MenuProps, Space, Tooltip, Typography } from 'antd'
@@ -32,17 +32,22 @@ const renderRoutes = (routes: IRoute[]): MenuProps['items'] =>
 
 export default () => {
   useEffect(() => {
-    if (!localStorage.getItem(CAM_TOKEN_KEY)) {
+    if (localStorage.getItem(CAM_TOKEN_KEY)) {
+      runGetUserInfo()
+    } else {
       history.push('/login')
     }
   }, [])
 
-  const { data: userInfo } = useRequest(getUserInfo)
+  const { data: userInfo, run: runGetUserInfo } = useRequest(getUserInfo, { manual: true })
 
-  const handleLogout = () => {
-    localStorage.removeItem(CAM_TOKEN_KEY)
-    history.push('/login')
-  }
+  const { run: handleLogout } = useRequest(logout, {
+    manual: true,
+    onSuccess: () => {
+      localStorage.removeItem(CAM_TOKEN_KEY)
+      history.push('/login')
+    }
+  })
 
   return (
     <ConfigProvider

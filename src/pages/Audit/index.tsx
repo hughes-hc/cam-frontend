@@ -18,10 +18,7 @@ const { Text, Title } = Typography
 const initialQuery = {
   page: 1,
   page_size: 10,
-  pattern: '',
   pattern_by: 'user_name',
-  order: '',
-  order_by: '',
   filters: {}
 }
 

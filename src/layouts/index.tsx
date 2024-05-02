@@ -6,10 +6,12 @@ import { ConfigProvider, Flex, Layout, Menu, MenuProps, Space, Tooltip, Typograp
 import zhCN from 'antd/locale/zh_CN'
 import routes, { IRoute } from 'config/routes'
 import { chain } from 'lodash'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Icon, Link, Outlet, history } from 'umi'
 import styles from './index.less'
 import 'dayjs/locale/zh-cn'
+import { useLocation } from '@/.umi/exports'
+import { findNestedPath } from '@/common/utils'
 
 const { Title } = Typography
 const { Header, Content } = Layout
@@ -31,6 +33,9 @@ const renderRoutes = (routes: IRoute[]): MenuProps['items'] =>
     .value()
 
 export default () => {
+  const { pathname } = useLocation()
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+
   useEffect(() => {
     if (localStorage.getItem(CAM_TOKEN_KEY)) {
       runGetUserInfo()
@@ -38,6 +43,11 @@ export default () => {
       history.push('/login')
     }
   }, [])
+
+  useEffect(() => {
+    const selectedKeys = findNestedPath(routes, pathname, 'path', 'routes')
+    setSelectedKeys(selectedKeys)
+  }, [pathname])
 
   const { data: userInfo, run: runGetUserInfo } = useRequest(getUserInfo, { manual: true })
 
@@ -72,7 +82,12 @@ export default () => {
               <Icon icon="local:common/logo" width="40px" height="40px" style={{ lineHeight: 1 }} />
               <Title>企业登记档案 · CAM</Title>
             </Link>
-            <Menu theme="dark" mode="horizontal" items={renderRoutes(filterRoutes(routes))} />
+            <Menu
+              theme="dark"
+              mode="horizontal"
+              items={renderRoutes(filterRoutes(routes))}
+              selectedKeys={selectedKeys}
+            />
           </Flex>
 
           <Space size="large">

@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { ArchiveModalViewer } from '../Viewer'
 import { Archive_Type_Color_Map, ArchiveTypeColorMapType } from '@/common/constant'
 import dayjs from 'dayjs'
+import useAccess from '@/hooks/useAccess'
 
 interface IProps extends ListProps<IArchive> {
   mode: 'search' | 'detail'
@@ -15,6 +16,7 @@ interface IProps extends ListProps<IArchive> {
 export default ({ companyId, mode, ...restProps }: IProps) => {
   const [activeId, setActiveId] = useState(0)
   const isSearch = mode === 'search'
+  const { canDeleteArchive } = useAccess()
 
   const {
     data: archiveInfo = [],
@@ -67,16 +69,18 @@ export default ({ companyId, mode, ...restProps }: IProps) => {
                   isSearch
                     ? []
                     : [
-                        <Button
-                          type="link"
-                          loading={loadingDelete}
-                          onClick={e => {
-                            handleDelete(item.id)
-                            e.stopPropagation()
-                          }}
-                        >
-                          删除
-                        </Button>
+                        canDeleteArchive && (
+                          <Button
+                            type="link"
+                            loading={loadingDelete}
+                            onClick={e => {
+                              handleDelete(item.id)
+                              e.stopPropagation()
+                            }}
+                          >
+                            删除
+                          </Button>
+                        )
                       ]
                 }
               >

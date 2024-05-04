@@ -12,12 +12,12 @@ type StatusType = keyof Pick<typeof ACCOUNT_STATUS_MAP, 'active' | 'disabled'>
 interface IProps {
   visible: boolean
   toggleVisible: () => void
-  initialData?: IUserForm
-  setInitialData: (data?: IUserForm) => void
+  initialData?: IUser
+  setInitialData: (data?: IUser) => void
   refreshTable: (query?: Partial<IQuery>) => void
 }
 
-const StatusSwitch = ({ value, onChange }: ICustomComProps<StatusType>) => {
+const StatusSwitch = ({ value, onChange, disabled }: ICustomComProps<StatusType>) => {
   const _val = value === 'active'
 
   return (
@@ -26,6 +26,7 @@ const StatusSwitch = ({ value, onChange }: ICustomComProps<StatusType>) => {
       unCheckedChildren={ACCOUNT_STATUS_MAP['disabled']}
       checked={_val}
       onChange={val => onChange?.(val ? 'active' : 'disabled')}
+      disabled={disabled}
     />
   )
 }
@@ -148,9 +149,11 @@ export default ({ visible, toggleVisible, initialData, setInitialData, refreshTa
         >
           <Input placeholder="请输入电话" />
         </Form.Item>
-        <Form.Item name="status" label="状态" initialValue={'active'}>
-          <StatusSwitch />
-        </Form.Item>
+        {isEdit && (
+          <Form.Item name="status" label="状态">
+            <StatusSwitch disabled={initialData?.is_default} />
+          </Form.Item>
+        )}
       </Form>
     </Modal>
   )

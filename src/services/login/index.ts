@@ -6,9 +6,9 @@ export const getCaptcha = () => {
 }
 
 export const login = (params: ILoginParam) => {
-  return request.post<ILoginParam, IUerInfo>('/api/v1/auth/login', params)
+  return request.post<ILoginParam, ILoginRes>('/api/v1/auth/login', params)
 }
 
 export const logout = () => request.post('/api/v1/auth/logout')
 
-export const getUserInfo = () => request.get<undefined, IUser>('/api/v1/user')
+export const getUserInfo = () => request.get<undefined, IUserInfo>('/api/v1/user')

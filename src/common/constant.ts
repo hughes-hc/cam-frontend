@@ -17,8 +17,8 @@ export const USER_ROLE_MAP = {
 export type UserRoleType = keyof typeof USER_ROLE_MAP
 
 export const Audit_Action_Map = {
-  login: '用户登录',
-  logout: '用户退出登录',
+  login: '登录',
+  logout: '登出',
   create: '新增',
   update: '更新',
   delete: '删除',
@@ -29,8 +29,8 @@ export const Audit_Action_Map = {
 export type AuditActionType = keyof typeof Audit_Action_Map
 
 export const Audit_Resource_Map = {
-  user: '用户信息',
-  company: '企业信息',
+  user: '用户',
+  company: '企业',
   archive: '档案'
 }
 export type AuditResourceType = keyof typeof Audit_Resource_Map

@@ -2,13 +2,16 @@ import {
   AuditActionType,
   AuditResourceType,
   Audit_Action_Map,
-  Audit_Resource_Map
+  Audit_Resource_Map,
+  USER_ROLE_MAP,
+  UserRoleType
 } from '@/common/constant'
 import CAMSelect from '@/components/CAMSelect'
 import CAMTitle from '@/components/CAMTitle'
 import { getAuditList } from '@/services/audit'
+import withAuth from '@/wrappers/auth'
 import { useRequest, useSetState } from 'ahooks'
-import { Divider, Flex, Input, Select, Space, Table, Typography } from 'antd'
+import { Badge, Descriptions, Divider, Flex, Input, Select, Space, Table, Typography } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
 import { map } from 'lodash'
 
@@ -22,7 +25,7 @@ const initialQuery = {
   filters: {}
 }
 
-export default () => {
+const Audit = () => {
   const [query, setQuery] =
     useSetState<IQuery<Pick<IAuditItem, 'result' | 'resource'>>>(initialQuery)
   const { page, page_size, pattern, pattern_by, order, order_by, filters } = query
@@ -125,9 +128,42 @@ export default () => {
           pageSize: page_size,
           total
         }}
+        expandable={{
+          expandedRowRender: ({
+            user_name,
+            user_role,
+            created_at,
+            action,
+            resource,
+            result,
+            description
+          }) => (
+            <Descriptions
+              title={
+                <Space>
+                  <Badge status={result ? 'success' : 'error'} />
+                  <span>
+                    {
+                      // 用户角色 + 人员名称 + 操作时间 + 操作类型 + 资源类型 + 操作结果
+                      (user_role ? `${USER_ROLE_MAP[user_role as UserRoleType]}` : '') +
+                        user_name +
+                        ` 在${created_at} ` +
+                        Audit_Action_Map[action as AuditActionType] +
+                        (resource ? Audit_Resource_Map[resource as AuditResourceType] : '') +
+                        (result ? '成功' : '失败')
+                    }
+                  </span>
+                </Space>
+              }
+              items={[{ label: '详细信息', children: description || '-' }]}
+            />
+          )
+        }}
         loading={loading}
         onChange={handleTableChange}
       />
     </div>
   )
 }
+
+export default withAuth(Audit)

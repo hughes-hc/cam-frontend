@@ -9,6 +9,8 @@ import { map } from 'lodash'
 import { useState } from 'react'
 import styles from './index.less'
 import CAMTitle from '@/components/CAMTitle'
+import withAuth from '@/wrappers/auth'
+import useAccess from '@/hooks/useAccess'
 
 const { Dragger } = Upload
 
@@ -29,6 +31,7 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
   const [modalVisible, setModalVisible] = useState(false)
   const [fileList, setFileList] = useState<IUploadFile[]>([])
   const [percent, setPercent] = useState(0)
+  const { canAddArchive } = useAccess()
 
   const { loading, run: runUpload } = useRequest(
     () => {
@@ -251,9 +254,11 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
             </Flex>
           </Modal>
         )}
-        <Button type="primary" onClick={() => setModalVisible(true)}>
-          新增档案
-        </Button>
+        {canAddArchive && (
+          <Button type="primary" onClick={() => setModalVisible(true)}>
+            新增档案
+          </Button>
+        )}
       </>
     )
   } else {
@@ -283,4 +288,4 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
   }
 }
 
-export default ArchiveUpload
+export default withAuth(ArchiveUpload)

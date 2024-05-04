@@ -13,6 +13,7 @@ export default defineConfig({
   icons: {
     include: [
       'local:common/logo',
+      'local:common/user',
       'local:menu/company',
       'local:menu/archive',
       'local:menu/account',

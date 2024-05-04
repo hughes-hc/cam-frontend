@@ -2,12 +2,13 @@ import searchPng from '@/assets/images/search.png'
 import CAMTitle from '@/components/CAMTitle'
 import ArchiveList from '@/pages/Archive/List'
 import { getCompaniesOptions } from '@/services/company'
+import withAuth from '@/wrappers/auth'
 import { useRequest } from 'ahooks'
 import { AutoComplete, Empty, Flex, Image } from 'antd'
 import { map } from 'lodash'
 import { useState } from 'react'
 
-export default () => {
+const ArchiveSearch = () => {
   const [name, setName] = useState<string>('')
   const [id, setId] = useState<number>(0)
 
@@ -42,3 +43,5 @@ export default () => {
     </Flex>
   )
 }
+
+export default withAuth(ArchiveSearch)

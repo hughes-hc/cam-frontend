@@ -15,6 +15,7 @@ import { map } from 'lodash'
 import { useState } from 'react'
 import AddOrEditModal from './AddOrEditModal'
 import EditPasswordModal from './EditPasswordModal'
+import withAuth from '@/wrappers/auth'
 
 const { Text } = Typography
 const { Search } = Input
@@ -27,7 +28,7 @@ const initialQuery: IQuery = {
   filters: {}
 }
 
-export default () => {
+const Account = () => {
   const [query, setQuery] = useSetState<IQuery<Pick<IUser, 'role' | 'status'>>>(initialQuery)
   const { page, page_size, pattern, pattern_by, order, filters } = query
 
@@ -120,10 +121,10 @@ export default () => {
       title: '操作',
       render: (_, record) => (
         <Space size="small" split={<Divider type="vertical" />}>
-          <Button type="link" disabled={record.is_default} onClick={() => handleAddOrEdit(record)}>
+          <Button type="link" onClick={() => handleAddOrEdit(record)}>
             编辑
           </Button>
-          <Button type="link" disabled={record.is_default} onClick={() => handleEditPwd(record)}>
+          <Button type="link" onClick={() => handleEditPwd(record)}>
             修改密码
           </Button>
           <Button
@@ -196,3 +197,5 @@ export default () => {
     </div>
   )
 }
+
+export default withAuth(Account)

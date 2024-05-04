@@ -23,3 +23,5 @@ interface IPasswordForm {
   captcha_id: string
   captcha_code: string
 }
+
+interface IUserInfo extends IUser {}

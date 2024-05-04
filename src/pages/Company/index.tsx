@@ -25,6 +25,8 @@ import { useState } from 'react'
 import { history } from 'umi'
 import AddOrEditModal from './AddOrEditModal'
 import CAMTitle from '@/components/CAMTitle'
+import withAuth from '@/wrappers/auth'
+import useAccess from '@/hooks/useAccess'
 
 const { Text } = Typography
 const { Search } = Input
@@ -36,12 +38,13 @@ const initialQuery: IQuery = {
   pattern_by: 'name'
 }
 
-export default () => {
+const Company = () => {
   const [query, setQuery] = useSetState<IQuery>(initialQuery)
   const { page, page_size, pattern, pattern_by, order } = query
   const [fileList, setFileList] = useState<UploadFile[]>([])
   const [visible, { toggle: toggleVisible }] = useToggle()
   const [initialData, setInitialData] = useState<ICompanyForm | undefined>()
+  const { canAddCompany, canDeleteCompany, canEditCompany } = useAccess()
 
   const {
     data,
@@ -133,12 +136,16 @@ export default () => {
           <Button type="link" onClick={() => handleViewDetail(record)}>
             详情
           </Button>
-          <Button type="link" onClick={() => handleAddOrEdit(record)}>
-            编辑
-          </Button>
-          <Button type="link" onClick={() => handleDelete(record)}>
-            删除
-          </Button>
+          {canEditCompany && (
+            <Button type="link" onClick={() => handleAddOrEdit(record)}>
+              编辑
+            </Button>
+          )}
+          {canDeleteCompany && (
+            <Button type="link" onClick={() => handleDelete(record)}>
+              删除
+            </Button>
+          )}
         </Space>
       )
     }
@@ -201,25 +208,27 @@ export default () => {
             allowClear
           />
         </Space.Compact>
-        <Space size="large">
-          <Space.Compact>
-            <Tooltip
-              title="下载模板后，按照模板格式规范填写企业信息，进行批量导入"
-              placement="bottomLeft"
-            >
-              <QuestionCircleOutlined style={{ color: '#1677ff' }} />
-              <Button type="link" onClick={() => handleDownloadTemplate()}>
-                下载模板
-              </Button>
-            </Tooltip>
-          </Space.Compact>
-          <Upload {...uploadProps}>
-            <Button type="primary">信息导入</Button>
-          </Upload>
-          <Button type="primary" style={{ minWidth: 80 }} onClick={() => handleAddOrEdit()}>
-            新增
-          </Button>
-        </Space>
+        {canAddCompany && (
+          <Space size="large">
+            <Space.Compact>
+              <Tooltip
+                title="下载模板后，按照模板格式规范填写企业信息，进行批量导入"
+                placement="bottomLeft"
+              >
+                <QuestionCircleOutlined style={{ color: '#1677ff' }} />
+                <Button type="link" onClick={() => handleDownloadTemplate()}>
+                  下载模板
+                </Button>
+              </Tooltip>
+            </Space.Compact>
+            <Upload {...uploadProps}>
+              <Button type="primary">信息导入</Button>
+            </Upload>
+            <Button type="primary" style={{ minWidth: 80 }} onClick={() => handleAddOrEdit()}>
+              新增
+            </Button>
+          </Space>
+        )}
       </Flex>
       <Table
         rowKey="id"
@@ -237,3 +246,5 @@ export default () => {
     </div>
   )
 }
+
+export default withAuth(Company)

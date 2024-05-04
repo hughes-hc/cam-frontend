@@ -10,6 +10,7 @@ interface ILoginParam {
   captcha_code: string
 }
 
-interface IUerInfo {
+interface ILoginRes {
   access_token: string
+  refresh_token: string
 }

@@ -1,3 +1,5 @@
+import { IRoute } from 'config/routes'
+
 /**
  *
  * @param {number} currentPage 当前所在的页码

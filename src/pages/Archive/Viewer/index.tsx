@@ -1,4 +1,4 @@
-import { getArchiveFile } from '@/services/archive'
+import { getArchiveFile, viewArchiveFile } from '@/services/archive'
 import {
   BorderOutlined,
   CaretLeftFilled,
@@ -15,7 +15,7 @@ import { useRequest, useToggle } from 'ahooks'
 import { Flex, Modal, Progress, Skeleton, Space } from 'antd'
 import classNames from 'classnames'
 import fileDownload from 'js-file-download'
-import { find, findIndex, times } from 'lodash'
+import { find, findIndex, isEmpty, times } from 'lodash'
 import { DocumentCallback, File } from 'node_modules/react-pdf/dist/esm/shared/types'
 import { useEffect, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars'
@@ -197,7 +197,7 @@ const ArchiveModalViewer = ({ list, activeId, setActiveId }: IModalProps) => {
   const activeArchive = find(list, item => item.id === activeId)
   const activeArchiveIndex = findIndex(list, item => item.id === activeId)
 
-  const { data: archivePdf } = useRequest(() => getArchiveFile({ id: activeId }, setProgress), {
+  const { data: archivePdf } = useRequest(() => viewArchiveFile({ id: activeId }, setProgress), {
     ready: !!activeId,
     refreshDeps: [activeId],
     onSuccess(res) {
@@ -211,7 +211,12 @@ const ArchiveModalViewer = ({ list, activeId, setActiveId }: IModalProps) => {
     {
       manual: true,
       onSuccess(res) {
-        fileDownload(res, activeArchive?.volume_part_num + `[${selectedPages.join('、')}]` + '.pdf')
+        fileDownload(
+          res,
+          activeArchive?.volume_part_num +
+            (isEmpty(selectedPages) ? '' : `[${selectedPages.join('、')}]`) +
+            '.pdf'
+        )
       }
     }
   )
@@ -223,11 +228,12 @@ const ArchiveModalViewer = ({ list, activeId, setActiveId }: IModalProps) => {
 
   const handleDownload = () => {
     if (archivePdf) {
-      if (selectedPages.length === 0) {
-        fileDownload(archivePdf, activeArchive?.volume_part_num + '.pdf')
-      } else {
-        runGetPartialArchive()
-      }
+      // if (selectedPages.length === 0) {
+      //   fileDownload(archivePdf, activeArchive?.volume_part_num + '.pdf')
+      // } else {
+      //   runGetPartialArchive()
+      // }
+      runGetPartialArchive()
     }
   }
 

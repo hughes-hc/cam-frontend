@@ -81,7 +81,7 @@ export default ({ visible, toggleVisible, initialData, setInitialData }: IProps)
         >
           <Input.Password placeholder="请再次输入新密码" autoComplete="new-password" />
         </Form.Item>
-        <Form.Item name="password" label="密码确认" rules={[{ required: true }]}>
+        <Form.Item name="password" label="身份确认" rules={[{ required: true }]}>
           <Input.Password placeholder="请输入当前登录用户的密码" />
         </Form.Item>
         <Form.Item label="验证码" required>

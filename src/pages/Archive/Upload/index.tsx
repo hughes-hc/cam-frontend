@@ -169,7 +169,7 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
           <Select
             placeholder="类型"
             size="large"
-            style={{ minWidth: 100 }}
+            style={{ minWidth: 80 }}
             options={[
               { value: 'ESTABLISH', label: '设立' },
               { value: 'CHANGE', label: '变更' },
@@ -193,7 +193,7 @@ const ArchiveUpload = ({ isModal, companyId, afterSubmit, width = 650 }: IProps)
             }}
           />
           <DatePicker
-            style={{ minWidth: 100, maxWidth: 100 }}
+            style={{ minWidth: 120, maxWidth: 120, height: 40 }}
             placeholder="归档日期"
             onChange={date =>
               setFileList(

@@ -19,6 +19,26 @@
     position: absolute;
     top: 0;
     width: 100%;
+
+    .right {
+      align-items: center;
+    }
+
+    .checkMode {
+      display: inline-block;
+      background: #d6d6d6;
+      padding: 0 8px;
+      font-size: 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      color: gray;
+      user-select: none;
+
+      &.active {
+        background: #20a0ff;
+        color: #fff;
+      }
+    }
   }
 
   .outlineContainer {
@@ -43,6 +63,12 @@
             }
           }
         }
+      }
+
+      .pageCheck {
+        position: absolute;
+        bottom: 30px;
+        right: 5px;
       }
     }
 

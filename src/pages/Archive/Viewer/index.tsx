@@ -74,6 +74,16 @@ const ArchiveViewer = ({
     setDocumentLoaded(true)
   }
 
+  const handlePageSelect = (pageNumber: number) => {
+    if (isChecking) {
+      if (selectedPages.includes(pageNumber)) {
+        setSelectedPages(selectedPages.filter(p => p !== pageNumber))
+      } else {
+        setSelectedPages([...selectedPages, pageNumber])
+      }
+    }
+  }
+
   return (
     <div className={styles.viewer}>
       <Document
@@ -93,11 +103,18 @@ const ArchiveViewer = ({
             {filename}
           </Space>
           <Space className={styles.right} size="middle">
-            {isChecking ? (
+            <span
+              onClick={toggleCheck}
+              title={isChecking ? '关闭选择模式' : '开启选择模式'}
+              className={classNames(styles.checkMode, { [styles.active]: isChecking })}
+            >
+              选择
+            </span>
+            {/* {isChecking ? (
               <CheckSquareOutlined onClick={toggleCheck} title="关闭选择模式" />
             ) : (
               <BorderOutlined onClick={toggleCheck} title="开启选择模式" />
-            )}
+            )} */}
             {isFullScreen ? (
               <FullscreenExitOutlined onClick={onFullScreen} title="取消全屏" />
             ) : (
@@ -132,7 +149,7 @@ const ArchiveViewer = ({
                   {times(numPages, i => {
                     const pageNumber = i + 1
                     return (
-                      <div key={i} style={{ textAlign: 'center' }}>
+                      <div key={i} style={{ textAlign: 'center', position: 'relative' }}>
                         <Thumbnail
                           pageNumber={pageNumber}
                           key={i}
@@ -140,16 +157,23 @@ const ArchiveViewer = ({
                           className={classNames(styles.thumbnailItem, {
                             [styles.selected]: selectedPages.includes(pageNumber)
                           })}
-                          onClick={() => {
-                            if (isChecking) {
-                              if (selectedPages.includes(pageNumber)) {
-                                setSelectedPages(selectedPages.filter(p => p !== pageNumber))
-                              } else {
-                                setSelectedPages([...selectedPages, pageNumber])
-                              }
-                            }
-                          }}
+                          onClick={() => handlePageSelect(pageNumber)}
                         />
+                        {isChecking && (
+                          <div className={styles.pageCheck}>
+                            {selectedPages.includes(pageNumber) ? (
+                              <CheckSquareOutlined
+                                onClick={() => handlePageSelect(pageNumber)}
+                                title="已选择"
+                              />
+                            ) : (
+                              <BorderOutlined
+                                onClick={() => handlePageSelect(pageNumber)}
+                                title="待选择"
+                              />
+                            )}
+                          </div>
+                        )}
                         {pageNumber}
                       </div>
                     )

@@ -18,7 +18,7 @@ export const getArchivesList = (params: IArchivesReq) =>
   request.get<IArchivesReq, IArchive[]>('/api/v1/archives/:companyId', { params })
 
 export const viewArchiveFile = (params: IParam, callback?: Function) =>
-  request.post<IParam, Blob>('/api/v1/archives/download', params, {
+  request.post<IParam, Blob>('/api/v1/archives/view', params, {
     responseType: 'blob',
     onDownloadProgress: progressEvent => {
       const percentCompleted = Math.floor(
